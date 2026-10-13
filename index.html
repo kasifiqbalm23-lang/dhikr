@@ -181,7 +181,7 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(42, 107, 154, 0.5);
-    z-index: 20;
+    z-index: 8;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -465,8 +465,7 @@
 
   const K = {
     count: 'dc_count', target: 'dc_target', total: 'dc_total',
-    idx: 'dc_idx', vib: 'dc_vib',
-    editions: 'dc_editions', hadithCache: 'dc_hadith_cache'
+    idx: 'dc_idx', vib: 'dc_vib'
   };
 
   let state = {
@@ -575,92 +574,60 @@
   }
 
   /* ============================================================
-     HADITH FETCH WITH CORS FALLBACKS
+     HADITH FETCH — hardcoded collections, multiple URL fallbacks
      ============================================================ */
-  const CDN_MIRRORS = [
-    'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1',
-    'https://fastly.jsdelivr.net/gh/fawazahmed0/hadith-api@1',
-    'https://gcore.jsdelivr.net/gh/fawazahmed0/hadith-api@1'
+  const HADITH_COLLECTIONS = [
+    { key: 'eng-bukhari',        name: 'Sahih al-Bukhari',      slug: 'bukhari' },
+    { key: 'eng-muslim',         name: 'Sahih Muslim',          slug: 'muslim' },
+    { key: 'eng-abudawud',       name: 'Sunan Abi Dawud',       slug: 'abudawud' },
+    { key: 'eng-tirmidhi',       name: "Jami' at-Tirmidhi",     slug: 'tirmidhi' },
+    { key: 'eng-nasai',          name: "Sunan an-Nasa'i",       slug: 'nasai' },
+    { key: 'eng-ibnmajah',       name: 'Sunan Ibn Majah',       slug: 'ibnmajah' },
+    { key: 'eng-malik',          name: 'Muwatta Malik',         slug: 'malik' },
+    { key: 'eng-nawawi',         name: '40 Hadith Nawawi',      slug: 'nawawi' },
+    { key: 'eng-qudsi',          name: '40 Hadith Qudsi',       slug: 'qudsi' },
+    { key: 'eng-riyadussalihin', name: 'Riyad as-Salihin',      slug: 'riyadussalihin' }
   ];
 
-  async function fetchWithFallback(path) {
-    let lastError = null;
-    for (const base of CDN_MIRRORS) {
-      try {
-        const res = await fetch(base + path, { mode: 'cors' });
-        if (res.ok) {
-          const text = await res.text();
-          if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
-            return JSON.parse(text);
-          }
-        }
-      } catch (e) {
-        lastError = e;
-        continue;
-      }
-    }
-    throw lastError || new Error('All CDN mirrors failed');
+  async function fetchJSON(url) {
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const t = text.trim();
+    if (!t.startsWith('{') && !t.startsWith('[')) throw new Error('Not JSON');
+    return JSON.parse(t);
   }
 
-  async function fetchEditions() {
-    const cached = localStorage.getItem(K.editions);
-    if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
-    }
-
-    const data = await fetchWithFallback('/editions.min.json');
-
-    const englishEditions = {};
-    for (const key of Object.keys(data)) {
-      if (key.startsWith('eng-') && !key.includes('sections')) {
-        englishEditions[key] = data[key];
-      }
-    }
-
-    try {
-      localStorage.setItem(K.editions, JSON.stringify(englishEditions));
-    } catch (e) {}
-    return englishEditions;
-  }
-
-  async function fetchCollection(editionKey) {
-    const cacheKey = K.hadithCache + '_' + editionKey;
+  async function fetchCollection(key) {
+    const cacheKey = 'dc_hadith_' + key;
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try { return JSON.parse(cached); } catch (e) {}
     }
 
-    const data = await fetchWithFallback('/editions/' + editionKey + '.min.json');
+    const urls = [
+      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/' + key + '.min.json',
+      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/' + key + '.json',
+      'https://raw.githubusercontent.com/fawazahmed0/hadith-api/1/editions/' + key + '.json'
+    ];
 
-    const serialized = JSON.stringify(data);
-    if (serialized.length < 2_000_000) {
-      try { localStorage.setItem(cacheKey, serialized); } catch (e) {}
+    let lastErr = null;
+    for (const url of urls) {
+      try {
+        const data = await fetchJSON(url);
+        if (data && Array.isArray(data.hadiths) && data.hadiths.length > 0) {
+          const s = JSON.stringify(data);
+          if (s.length < 1_800_000) {
+            try { localStorage.setItem(cacheKey, s); } catch (e) {}
+          }
+          return data;
+        }
+      } catch (e) {
+        lastErr = e;
+        continue;
+      }
     }
-    return data;
-  }
-
-  function getCollectionDisplayName(editionKey) {
-    const name = editionKey.replace('eng-', '').replace(/-/g, ' ');
-    const map = {
-      'bukhari': 'Sahih al-Bukhari',
-      'muslim': 'Sahih Muslim',
-      'abudawud': 'Sunan Abi Dawud',
-      'tirmidhi': "Jami' at-Tirmidhi",
-      'nasai': "Sunan an-Nasa'i",
-      'ibnmajah': 'Sunan Ibn Majah',
-      'malik': 'Muwatta Malik',
-      'ahmad': 'Musnad Ahmad',
-      'darimi': 'Sunan al-Darimi',
-      'riyadussalihin': 'Riyad as-Salihin',
-      'adab': 'Al-Adab Al-Mufrad',
-      'bulugh': 'Bulugh al-Maram',
-      'shamail': "Shama'il Muhammadiyah",
-      'mishkat': 'Mishkat al-Masabih',
-      'nawawi': "40 Hadith Nawawi",
-      'qudsi': '40 Hadith Qudsi',
-      'shahwaliullah40': '40 Hadith Shah Waliullah'
-    };
-    return map[name] || name.charAt(0).toUpperCase() + name.slice(1);
+    throw lastErr || new Error('All sources failed for ' + key);
   }
 
   async function showRandomHadith() {
@@ -668,29 +635,23 @@
     container.innerHTML = '<div style="text-align:center;padding:30px;color:#6c8099;"><span class="loading-spinner"></span>Loading hadith...</div>';
 
     try {
-      const editions = await fetchEditions();
-      const editionKeys = Object.keys(editions);
-      if (editionKeys.length === 0) throw new Error('No editions available');
+      const coll = HADITH_COLLECTIONS[Math.floor(Math.random() * HADITH_COLLECTIONS.length)];
+      const data = await fetchCollection(coll.key);
+      const hadiths = data.hadiths;
+      const h = hadiths[Math.floor(Math.random() * hadiths.length)];
 
-      const randomEditionKey = editionKeys[Math.floor(Math.random() * editionKeys.length)];
-      const collectionData = await fetchCollection(randomEditionKey);
-      const hadiths = collectionData.hadiths || [];
-      if (hadiths.length === 0) throw new Error('No hadiths in collection');
-
-      const randomHadith = hadiths[Math.floor(Math.random() * hadiths.length)];
-      const arabicText = randomHadith.arabic || '';
-      const englishText = randomHadith.text || '';
-      const hadithNumber = randomHadith.hadithnumber || '';
-      const collectionName = getCollectionDisplayName(randomEditionKey);
-      const sunnahUrl = `https://sunnah.com/${randomEditionKey.replace('eng-', '')}:${hadithNumber}`;
+      const num = h.hadithnumber || h.hadithNumber || h.number || '?';
+      const english = h.text || (h.english && h.english.text) || '';
+      const arabic = h.arabic || '';
+      const sunnahUrl = 'https://sunnah.com/' + coll.slug + ':' + num;
 
       container.innerHTML = `
         <div class="hadith-card" style="border-color: #2a6b9a;">
-          <div class="hadith-topic-badge">${collectionName}</div>
-          ${arabicText ? `<div class="h-arabic">${arabicText}</div>` : ''}
-          <div class="h-text">${englishText}</div>
+          <div class="hadith-topic-badge">${coll.name}</div>
+          ${arabic ? '<div class="h-arabic">' + arabic + '</div>' : ''}
+          <div class="h-text">${english}</div>
           <div class="h-ref">
-            <span>${collectionName} #${hadithNumber}</span>
+            <span>${coll.name} #${num}</span>
             <a href="${sunnahUrl}" target="_blank">sunnah.com ↗</a>
           </div>
         </div>
@@ -700,20 +661,10 @@
       container.innerHTML = `
         <div class="hadith-card" style="border-color:#5a2a2a;">
           <div class="h-text" style="color:#ff9b9b;">
-            Couldn't reach the hadith API from a local file.
-            Your browser blocks cross-origin requests from <code>file://</code> pages.
+            Couldn't load: ${err.message}
           </div>
-          <div class="h-text" style="color:#8fa3b8;font-size:13px;margin-top:12px;">
-            <strong>Two ways to fix it:</strong><br><br>
-            1. Open this file in <strong>Kiwi Browser</strong> (free on Play Store).
-            Then in Kiwi go to <code>chrome://flags</code>, search for
-            "Enable file schemes", enable it, and restart the browser.<br><br>
-            2. Host this file online (e.g. Netlify Drop or GitHub Pages).
-            Once it has a real <code>https://</code> URL, everything works
-            automatically.
-          </div>
-          <div style="font-size:11px;color:#4a5a6a;margin-top:10px;">
-            Error: ${err.message}
+          <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">
+            Tap "Another Hadith" to try a different collection.
           </div>
         </div>
       `;
