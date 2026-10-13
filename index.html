@@ -9,197 +9,55 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
-    height: 100%;
-    background: #0f1720;
-    color: #e8eef5;
+    height: 100%; background: #0f1720; color: #e8eef5;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
   }
   body { display: flex; flex-direction: column; padding: 16px; gap: 12px; }
-
-  .topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 14px; color: #8fa3b8;
-  }
-  .topbar button {
-    background: #1a2530; color: #e8eef5; border: none;
-    padding: 10px 14px; border-radius: 10px; font-size: 16px;
-    cursor: pointer;
-  }
+  .topbar { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #8fa3b8; }
+  .topbar button { background: #1a2530; color: #e8eef5; border: none; padding: 10px 14px; border-radius: 10px; font-size: 16px; cursor: pointer; }
   .topbar button:active { background: #253240; }
-
   .dhikr-box { text-align: center; margin-top: 4px; }
-  .arabic {
-    font-size: 34px; font-weight: 700; line-height: 1.4;
-    color: #f0f6ff; direction: rtl;
-  }
+  .arabic { font-size: 34px; font-weight: 700; line-height: 1.4; color: #f0f6ff; direction: rtl; }
   .translit { font-size: 17px; color: #a8bdd4; margin-top: 6px; }
   .meaning { font-size: 13px; color: #6c8099; margin-top: 4px; }
-
-  .hadith-btn {
-    margin-top: 10px;
-    background: #1e3a5f; color: #8fb4d9; border: 1px solid #2a4a6b;
-    padding: 8px 18px; border-radius: 20px; font-size: 13px;
-    cursor: pointer; font-weight: 600;
-  }
+  .hadith-btn { margin-top: 10px; background: #1e3a5f; color: #8fb4d9; border: 1px solid #2a4a6b; padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 600; }
   .hadith-btn:active { background: #2a4a6b; }
-
-  .counter-wrap {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-  }
-  .counter {
-    width: min(68vw, 68vh, 320px);
-    height: min(68vw, 68vh, 320px);
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 25%, #1e3a5f, #12293f 70%);
-    border: 3px solid #2a4a6b;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.06s ease, background 0.2s ease;
-    box-shadow: 0 0 40px rgba(58, 130, 200, 0.15) inset;
-  }
+  .counter-wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  .counter { width: min(68vw, 68vh, 320px); height: min(68vw, 68vh, 320px); border-radius: 50%; background: radial-gradient(circle at 30% 25%, #1e3a5f, #12293f 70%); border: 3px solid #2a4a6b; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.06s ease, background 0.2s ease; box-shadow: 0 0 40px rgba(58, 130, 200, 0.15) inset; }
   .counter:active { transform: scale(0.96); }
-  .counter.done {
-    background: radial-gradient(circle at 30% 25%, #1e5f3a, #123f29 70%);
-    border-color: #2a8b5c;
-    box-shadow: 0 0 50px rgba(58, 200, 130, 0.3) inset;
-  }
+  .counter.done { background: radial-gradient(circle at 30% 25%, #1e5f3a, #123f29 70%); border-color: #2a8b5c; box-shadow: 0 0 50px rgba(58, 200, 130, 0.3) inset; }
   .count { font-size: 74px; font-weight: 800; line-height: 1; color: #ffffff; }
   .target { font-size: 22px; color: #8fb4d9; margin-top: 6px; }
-
-  .controls {
-    display: flex; gap: 10px; justify-content: center; align-items: center;
-    padding-bottom: 60px;
-  }
-  .controls button {
-    background: #1a2530; color: #e8eef5; border: none;
-    padding: 12px 20px; border-radius: 12px; font-size: 15px;
-    cursor: pointer; font-weight: 600;
-  }
+  .controls { display: flex; gap: 10px; justify-content: center; align-items: center; padding-bottom: 60px; }
+  .controls button { background: #1a2530; color: #e8eef5; border: none; padding: 12px 20px; border-radius: 12px; font-size: 15px; cursor: pointer; font-weight: 600; }
   .controls button:active { background: #253240; }
   .controls button.reset { background: #3a1a1a; color: #ff9b9b; }
-
-  .sheet {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    background: #16202b; border-radius: 20px 20px 0 0;
-    padding: 20px 20px 28px; transform: translateY(100%);
-    transition: transform 0.25s ease; z-index: 10;
-    max-height: 82vh; overflow-y: auto;
-    border-top: 1px solid #253240;
-  }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #16202b; border-radius: 20px 20px 0 0; padding: 20px 20px 28px; transform: translateY(100%); transition: transform 0.25s ease; z-index: 10; max-height: 82vh; overflow-y: auto; border-top: 1px solid #253240; }
   .sheet.open { transform: translateY(0); }
   .sheet h3 { font-size: 15px; color: #8fa3b8; margin-bottom: 10px; font-weight: 600; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .chip {
-    background: #1e2b38; color: #cfe0f0; border: 1px solid #2a3a4a;
-    padding: 10px 16px; border-radius: 20px; font-size: 14px;
-    cursor: pointer;
-  }
+  .chip { background: #1e2b38; color: #cfe0f0; border: 1px solid #2a3a4a; padding: 10px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; }
   .chip.active { background: #2a6b9a; border-color: #3a90c9; color: #fff; }
-  .row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; border-top: 1px solid #253240;
-  }
-  .switch {
-    width: 50px; height: 28px; border-radius: 14px; background: #2a3a4a;
-    position: relative; cursor: pointer; transition: background 0.2s;
-  }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-top: 1px solid #253240; }
+  .switch { width: 50px; height: 28px; border-radius: 14px; background: #2a3a4a; position: relative; cursor: pointer; transition: background 0.2s; }
   .switch.on { background: #2a6b9a; }
-  .switch::after {
-    content: ''; position: absolute; width: 22px; height: 22px;
-    border-radius: 50%; background: #fff; top: 3px; left: 3px;
-    transition: left 0.2s;
-  }
+  .switch::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: left 0.2s; }
   .switch.on::after { left: 25px; }
-  .close-sheet {
-    width: 100%; padding: 14px; background: #253240; color: #e8eef5;
-    border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-    margin-top: 12px; cursor: pointer;
-  }
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 9;
-  }
+  .close-sheet { width: 100%; padding: 14px; background: #253240; color: #e8eef5; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; margin-top: 12px; cursor: pointer; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 9; }
   .overlay.open { opacity: 1; pointer-events: auto; }
-
-  .hadith-card {
-    background: #16202b; border: 1px solid #253240;
-    border-radius: 14px; padding: 16px; margin-bottom: 12px;
-  }
-  .hadith-card .h-arabic {
-    font-size: 20px; line-height: 1.7; direction: rtl;
-    color: #f0f6ff; margin-bottom: 10px; text-align: right;
-  }
-  .hadith-card .h-text {
-    font-size: 14px; line-height: 1.6; color: #cfe0f0;
-    margin-bottom: 10px;
-  }
-  .hadith-card .h-ref {
-    font-size: 12px; color: #6c8099; font-weight: 600;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .hadith-card .h-ref a {
-    color: #5a9fd4; text-decoration: none;
-  }
-  .hadith-card .h-grade {
-    font-size: 11px; color: #4a8a5a; background: #1a2a1e;
-    padding: 3px 8px; border-radius: 10px; display: inline-block;
-    margin-top: 6px;
-  }
+  .hadith-card { background: #16202b; border: 1px solid #253240; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .hadith-card .h-arabic { font-size: 20px; line-height: 1.7; direction: rtl; color: #f0f6ff; margin-bottom: 10px; text-align: right; }
+  .hadith-card .h-text { font-size: 14px; line-height: 1.6; color: #cfe0f0; margin-bottom: 10px; }
+  .hadith-card .h-ref { font-size: 12px; color: #6c8099; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .hadith-card .h-ref a { color: #5a9fd4; text-decoration: none; }
+  .hadith-card .h-grade { font-size: 11px; color: #4a8a5a; background: #1a2a1e; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; }
   .virtues-list { margin-bottom: 16px; }
-
-  .hadith-topic-badge {
-    display: inline-block;
-    background: #1e3a5f;
-    color: #8fb4d9;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    font-weight: 600;
-  }
-
-  #randomHadithBtn {
-    position: fixed;
-    bottom: 22px;
-    right: 22px;
-    height: 52px;
-    border-radius: 26px;
-    background: linear-gradient(135deg, #2a6b9a, #1e4a6b);
-    border: 2px solid #3a90c9;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(42, 107, 154, 0.5);
-    z-index: 8;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 20px;
-    transition: transform 0.1s;
-  }
+  .hadith-topic-badge { display: inline-block; background: #1e3a5f; color: #8fb4d9; font-size: 11px; padding: 3px 10px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; }
+  #randomHadithBtn { position: fixed; bottom: 22px; right: 22px; height: 52px; border-radius: 26px; background: linear-gradient(135deg, #2a6b9a, #1e4a6b); border: 2px solid #3a90c9; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(42, 107, 154, 0.5); z-index: 8; display: flex; align-items: center; gap: 8px; padding: 0 20px; transition: transform 0.1s; }
   #randomHadithBtn:active { transform: scale(0.94); }
-
-  .loading-spinner {
-    display: inline-block;
-    width: 20px; height: 20px;
-    border: 2px solid #2a6b9a;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
+  .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #2a6b9a; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -244,15 +102,12 @@
 <div class="sheet" id="settingsSheet">
   <h3>Target</h3>
   <div class="chips" id="targetChips"></div>
-
   <h3>Virtues of Dhikr</h3>
   <div class="virtues-list" id="virtuesList"></div>
-
   <div class="row">
     <span>Vibration</span>
     <div class="switch on" id="vibSwitch"></div>
   </div>
-
   <button class="close-sheet" id="closeSettings">Done</button>
 </div>
 
@@ -266,201 +121,67 @@
 <script>
 (function() {
   /* ============================================================
-     PRESETS WITH HADITH
+     PRESETS WITH HADITH (kept for offline evidence cards)
      ============================================================ */
   const PRESETS = [
     {
-      arabic: 'سُبْحَانَ اللَّهِ',
-      translit: 'SubhanAllah',
-      meaning: 'Glory be to Allah',
+      arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', meaning: 'Glory be to Allah',
       hadith: [
-        {
-          arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
-          text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."',
-          ref: 'Sahih al-Bukhari 6682',
-          url: 'https://sunnah.com/bukhari:6682',
-          grade: 'Sahih'
-        },
-        {
-          arabic: 'مَنْ قَالَ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ',
-          text: 'Whoever says "Subhan Allahi wa bihamdihi" one hundred times a day, his sins will be erased, even if they were as much as the foam of the sea.',
-          ref: 'Sahih al-Bukhari 6405 / Sahih Muslim 2691',
-          url: 'https://sunnah.com/bukhari:6405',
-          grade: 'Sahih'
-        },
-        {
-          arabic: 'مَثَلُ الَّذِي يَذْكُرُ رَبَّهُ وَالَّذِي لَا يَذْكُرُ مَثَلُ الْحَيِّ وَالْمَيِّتِ',
-          text: 'The example of the one who celebrates the Praises of his Lord (Allah) in comparison to the one who does not celebrate the Praises of his Lord, is that of a living creature compared to a dead one.',
-          ref: 'Sahih al-Bukhari 6407',
-          url: 'https://sunnah.com/bukhari:6407',
-          grade: 'Sahih'
-        }
+        { arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ', text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."', ref: 'Sahih al-Bukhari 6682', url: 'https://sunnah.com/bukhari:6682', grade: 'Sahih' },
+        { arabic: 'مَنْ قَالَ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ', text: 'Whoever says "Subhan Allahi wa bihamdihi" one hundred times a day, his sins will be erased, even if they were as much as the foam of the sea.', ref: 'Sahih al-Bukhari 6405', url: 'https://sunnah.com/bukhari:6405', grade: 'Sahih' }
       ]
     },
     {
-      arabic: 'الْحَمْدُ لِلَّهِ',
-      translit: 'Alhamdulillah',
-      meaning: 'All praise is due to Allah',
+      arabic: 'الْحَمْدُ لِلَّهِ', translit: 'Alhamdulillah', meaning: 'All praise is due to Allah',
       hadith: [
-        {
-          arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ',
-          text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah (La ilaha illallah)\' and the best supplication is: \'All praise is due to Allah (Alhamdulillah).\'"',
-          ref: 'Jami` at-Tirmidhi 3383',
-          url: 'https://sunnah.com/tirmidhi:3383',
-          grade: 'Hasan'
-        },
-        {
-          arabic: 'إِنَّ اللَّهَ لَيَرْضَى عَنِ الْعَبْدِ أَنْ يَأْكُلَ الْأَكْلَةَ فَيَحْمَدَهُ عَلَيْهَا، أَوْ يَشْرَبَ الشَّرْبَةَ فَيَحْمَدَهُ عَلَيْهَا',
-          text: 'Allah is pleased with His servant who says "Alhamdulillah" when he eats a meal or drinks a drink.',
-          ref: 'Sahih Muslim 2734',
-          url: 'https://sunnah.com/muslim:2734',
-          grade: 'Sahih'
-        }
+        { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah\' and the best supplication is: \'All praise is due to Allah.\'"', ref: 'Jami` at-Tirmidhi 3383', url: 'https://sunnah.com/tirmidhi:3383', grade: 'Hasan' }
       ]
     },
     {
-      arabic: 'اللَّهُ أَكْبَرُ',
-      translit: 'Allahu Akbar',
-      meaning: 'Allah is the Greatest',
+      arabic: 'اللَّهُ أَكْبَرُ', translit: 'Allahu Akbar', meaning: 'Allah is the Greatest',
       hadith: [
-        {
-          arabic: 'مَنْ سَبَّحَ اللَّهَ فِي دُبُرِ كُلِّ صَلَاةٍ ثَلَاثًا وَثَلَاثِينَ وَحَمِدَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ وَكَبَّرَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ فَتِلْكَ تِسْعَةٌ وَتِسْعُونَ',
-          text: 'If anyone extols Allah after every prayer thirty-three times, and praises Allah thirty-three times, and declares His Greatness thirty-three times, ninety-nine times in all, and says to complete a hundred: "There is no god but Allah, having no partner with Him, to Him belongs sovereignty and to Him is praise due, and He is Potent over everything," his sins will be forgiven even if these are as abundant as the foam of the sea.',
-          ref: 'Sahih Muslim 597a',
-          url: 'https://sunnah.com/muslim:597a',
-          grade: 'Sahih'
-        },
-        {
-          arabic: 'مُعَقِّبَاتٌ لَا يَخِيبُ قَائِلُهُنَّ أَوْ فَاعِلُهُنَّ دُبُرَ كُلِّ صَلَاةٍ مَكْتُوبَة: ثَلَاث وَثَلَاثُونَ تَسْبِيحَة ثَلَاث وَثَلَاثُونَ تَحْمِيدَةً وَأَرْبَعٌ وَثَلَاثُونَ تَكْبِيرَةً',
-          text: 'There are certain remembrances the repeaters of which after every prescribed prayer will never be caused disappointment: "Glory be to God" thirty-three times, "Praise be to God" thirty-three times, and "God is most great" thirty-four times.',
-          ref: 'Mishkat al-Masabih 966',
-          url: 'https://sunnah.com/mishkat:966',
-          grade: 'Sahih (Al-Albani)'
-        }
+        { arabic: 'مَنْ سَبَّحَ اللَّهَ فِي دُبُرِ كُلِّ صَلَاةٍ ثَلَاثًا وَثَلَاثِينَ وَحَمِدَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ وَكَبَّرَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ فَتِلْكَ تِسْعَةٌ وَتِسْعُونَ', text: 'If anyone extols Allah after every prayer thirty-three times, and praises Allah thirty-three times, and declares His Greatness thirty-three times, ninety-nine times in all, and says to complete a hundred: "There is no god but Allah, having no partner with Him, to Him belongs sovereignty and to Him is praise due, and He is Potent over everything," his sins will be forgiven even if these are as abundant as the foam of the sea.', ref: 'Sahih Muslim 597a', url: 'https://sunnah.com/muslim:597a', grade: 'Sahih' }
       ]
     },
     {
-      arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
-      translit: 'La ilaha illa Allah',
-      meaning: 'There is no deity but Allah',
+      arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ', translit: 'La ilaha illa Allah', meaning: 'There is no deity but Allah',
       hadith: [
-        {
-          arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ',
-          text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah (La ilaha illallah)\' and the best supplication is: \'All praise is due to Allah (Alhamdulillah).\'"',
-          ref: 'Jami` at-Tirmidhi 3383',
-          url: 'https://sunnah.com/tirmidhi:3383',
-          grade: 'Hasan'
-        },
-        {
-          arabic: 'مَنْ قَالَ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، فِي يَوْمٍ مِائَةَ مَرَّةٍ، كَانَتْ لَهُ عَدْلَ عَشْرِ رِقَابٍ',
-          text: 'Whoever says "La ilaha illallahu wahdahu la sharika lahu, lahul-mulku wa lahul-hamdu wa Huwa \'ala kulli shai\'in Qadir" one hundred times a day, will get the reward of manumitting ten slaves.',
-          ref: 'Sahih al-Bukhari 3293 / Sahih Muslim 2691',
-          url: 'https://sunnah.com/bukhari:3293',
-          grade: 'Sahih'
-        }
+        { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah\' and the best supplication is: \'All praise is due to Allah.\'"', ref: 'Jami` at-Tirmidhi 3383', url: 'https://sunnah.com/tirmidhi:3383', grade: 'Hasan' }
       ]
     },
     {
-      arabic: 'أَسْتَغْفِرُ اللَّهَ',
-      translit: 'Astaghfirullah',
-      meaning: 'I seek forgiveness from Allah',
+      arabic: 'أَسْتَغْفِرُ اللَّهَ', translit: 'Astaghfirullah', meaning: 'I seek forgiveness from Allah',
       hadith: [
-        {
-          arabic: 'إِنَّهُ لَيُغَانُ عَلَى قَلْبِي وَإِنِّي لَأَسْتَغْفِرُ اللَّهَ فِي الْيَوْمِ مِائَةَ مَرَّةٍ',
-          text: 'The Prophet (ﷺ) said: "Sometimes a veil covers my heart, and I seek forgiveness from Allah a hundred times a day."',
-          ref: 'Sahih Muslim 2702',
-          url: 'https://sunnah.com/muslim:2702',
-          grade: 'Sahih'
-        },
-        {
-          arabic: 'مَنْ لَزِمَ الِاسْتِغْفَارَ جَعَلَ اللَّهُ لَهُ مِنْ كُلِّ ضِيقٍ مَخْرَجًا',
-          text: 'Whoever persists in seeking forgiveness, Allah will make a way out for him from every difficulty.',
-          ref: 'Sunan Abi Dawud 1518',
-          url: 'https://sunnah.com/abudawud:1518',
-          grade: 'Hasan (Al-Albani)'
-        }
+        { arabic: 'إِنَّهُ لَيُغَانُ عَلَى قَلْبِي وَإِنِّي لَأَسْتَغْفِرُ اللَّهَ فِي الْيَوْمِ مِائَةَ مَرَّةٍ', text: 'The Prophet (ﷺ) said: "Sometimes a veil covers my heart, and I seek forgiveness from Allah a hundred times a day."', ref: 'Sahih Muslim 2702', url: 'https://sunnah.com/muslim:2702', grade: 'Sahih' }
       ]
     },
     {
-      arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
-      translit: 'La hawla wa la quwwata illa billah',
-      meaning: 'No power nor strength except with Allah',
+      arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', translit: 'La hawla wa la quwwata illa billah', meaning: 'No power nor strength except with Allah',
       hadith: [
-        {
-          arabic: 'أَلَا أَدُلُّكَ عَلَى كَنْزٍ مِنْ كُنُوزِ الْجَنَّةِ؟ لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
-          text: 'The Prophet (ﷺ) said to Abu Musa: "Shall I not tell you of a treasure from the treasures of Paradise? It is: La hawla wa la quwwata illa billah."',
-          ref: 'Sahih al-Bukhari 6384 / Sahih Muslim 2704',
-          url: 'https://sunnah.com/bukhari:6384',
-          grade: 'Sahih'
-        }
+        { arabic: 'أَلَا أَدُلُّكَ عَلَى كَنْزٍ مِنْ كُنُوزِ الْجَنَّةِ؟ لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', text: 'The Prophet (ﷺ) said to Abu Musa: "Shall I not tell you of a treasure from the treasures of Paradise? It is: La hawla wa la quwwata illa billah."', ref: 'Sahih al-Bukhari 6384', url: 'https://sunnah.com/bukhari:6384', grade: 'Sahih' }
       ]
     },
     {
-      arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-      translit: 'SubhanAllahi wa bihamdih',
-      meaning: 'Glory and praise be to Allah',
+      arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', translit: 'SubhanAllahi wa bihamdih', meaning: 'Glory and praise be to Allah',
       hadith: [
-        {
-          arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
-          text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."',
-          ref: 'Sahih al-Bukhari 6682',
-          url: 'https://sunnah.com/bukhari:6682',
-          grade: 'Sahih'
-        },
-        {
-          arabic: 'مَنْ قَالَ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ',
-          text: 'Whoever says "Subhan Allahi wa bihamdihi" one hundred times a day, his sins will be erased, even if they were as much as the foam of the sea.',
-          ref: 'Sahih al-Bukhari 6405 / Sahih Muslim 2691',
-          url: 'https://sunnah.com/bukhari:6405',
-          grade: 'Sahih'
-        }
+        { arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ', text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."', ref: 'Sahih al-Bukhari 6682', url: 'https://sunnah.com/bukhari:6682', grade: 'Sahih' }
       ]
     },
     {
-      arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ',
-      translit: "Allahumma salli 'ala Muhammad",
-      meaning: 'O Allah, send blessings upon Muhammad',
+      arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', translit: "Allahumma salli 'ala Muhammad", meaning: 'O Allah, send blessings upon Muhammad',
       hadith: [
-        {
-          arabic: 'مَنْ صَلَّى عَلَيَّ صَلَاةً وَاحِدَةً صَلَّى اللَّهُ عَلَيْهِ عَشْرَ صَلَوَاتٍ',
-          text: 'The Prophet (ﷺ) said: "Whoever sends blessings upon me once, Allah will send blessings upon him ten times."',
-          ref: 'Sahih Muslim 408',
-          url: 'https://sunnah.com/muslim:408',
-          grade: 'Sahih'
-        }
+        { arabic: 'مَنْ صَلَّى عَلَيَّ صَلَاةً وَاحِدَةً صَلَّى اللَّهُ عَلَيْهِ عَشْرَ صَلَوَاتٍ', text: 'The Prophet (ﷺ) said: "Whoever sends blessings upon me once, Allah will send blessings upon him ten times."', ref: 'Sahih Muslim 408', url: 'https://sunnah.com/muslim:408', grade: 'Sahih' }
       ]
     }
   ];
 
-  /* ============================================================
-     VIRTUES OF DHIKR
-     ============================================================ */
   const VIRTUES = [
-    {
-      text: 'The Prophet (ﷺ) said: "The example of the one who celebrates the Praises of his Lord (Allah) in comparison to the one who does not celebrate the Praises of his Lord, is that of a living creature compared to a dead one."',
-      ref: 'Sahih al-Bukhari 6407',
-      url: 'https://sunnah.com/bukhari:6407'
-    },
-    {
-      text: 'Allah has mobile squads of angels who follow the assemblies of Dhikr. When they find such assemblies, they sit with them, surrounding them with their wings. Allah asks them: "Where have you come from?" They say: "We come from Your servants who were glorifying You, uttering Your Greatness, uttering Your Oneness, and praising You." Allah says: "I grant them pardon, and confer upon them what they ask for, and grant them protection against which they seek protection."',
-      ref: 'Sahih Muslim 2689',
-      url: 'https://sunnah.com/muslim:2689'
-    },
-    {
-      text: 'Sa\'d bin Abu Waqqas reported: We were with the Messenger of Allah (ﷺ) when he asked, "Is anyone of you unable to earn a thousand good deeds?" He (ﷺ) replied, "By saying: Subhan Allah a hundred times, then one thousand good deeds will be recorded for him or one thousand sins will be blotted out from his record."',
-      ref: 'Riyad as-Salihin 1431',
-      url: 'https://sunnah.com/riyadussalihin:1431'
-    },
-    {
-      text: 'The Prophet (ﷺ) used to remember Allah, the Great and Majestic, at all moments.',
-      ref: 'Sunan Abi Dawud 18',
-      url: 'https://sunnah.com/abudawud:18'
-    }
+    { text: 'The Prophet (ﷺ) said: "The example of the one who celebrates the Praises of his Lord (Allah) in comparison to the one who does not celebrate the Praises of his Lord, is that of a living creature compared to a dead one."', ref: 'Sahih al-Bukhari 6407', url: 'https://sunnah.com/bukhari:6407' },
+    { text: 'Allah has mobile squads of angels who follow the assemblies of Dhikr...', ref: 'Sahih Muslim 2689', url: 'https://sunnah.com/muslim:2689' },
+    { text: 'By saying: Subhan Allah a hundred times, then one thousand good deeds will be recorded for him or one thousand sins will be blotted out from his record.', ref: 'Riyad as-Salihin 1431', url: 'https://sunnah.com/riyadussalihin:1431' },
+    { text: 'The Prophet (ﷺ) used to remember Allah, the Great and Majestic, at all moments.', ref: 'Sunan Abi Dawud 18', url: 'https://sunnah.com/abudawud:18' }
   ];
 
-  /* ============================================================
-     CONSTANTS & STATE
-     ============================================================ */
   const TARGETS = [33, 99, 100, 500, 1000];
 
   const K = {
@@ -491,9 +212,6 @@
     if (navigator.vibrate) navigator.vibrate(pattern);
   }
 
-  /* ============================================================
-     RENDER
-     ============================================================ */
   function render() {
     const p = PRESETS[state.idx];
     $('arabic').textContent = p.arabic;
@@ -502,30 +220,18 @@
     $('count').textContent = state.count;
     $('targetDisplay').textContent = '/ ' + state.target;
     $('total').textContent = state.total;
-
     const c = $('counter');
-    if (state.count >= state.target && state.count > 0) {
-      c.classList.add('done');
-    } else {
-      c.classList.remove('done');
-    }
-
+    if (state.count >= state.target && state.count > 0) c.classList.add('done');
+    else c.classList.remove('done');
     const tc = $('targetChips');
     tc.innerHTML = '';
     TARGETS.forEach(t => {
       const el = document.createElement('div');
       el.className = 'chip' + (state.target === t ? ' active' : '');
       el.textContent = t;
-      el.onclick = () => {
-        state.target = t;
-        state.count = 0;
-        save();
-        render();
-        vibe(20);
-      };
+      el.onclick = () => { state.target = t; state.count = 0; save(); render(); vibe(20); };
       tc.appendChild(el);
     });
-
     $('vibSwitch').className = 'switch' + (state.vib ? ' on' : '');
   }
 
@@ -534,24 +240,14 @@
     $('hadithTitle').textContent = 'Hadith — ' + p.translit;
     const container = $('hadithContent');
     container.innerHTML = '';
-
     if (!p.hadith || p.hadith.length === 0) {
       container.innerHTML = '<p style="color:#6c8099;font-size:14px;">No specific hadith linked to this dhikr yet.</p>';
       return;
     }
-
     p.hadith.forEach(h => {
       const card = document.createElement('div');
       card.className = 'hadith-card';
-      card.innerHTML = `
-        <div class="h-arabic">${h.arabic}</div>
-        <div class="h-text">${h.text}</div>
-        <div class="h-ref">
-          <span>${h.ref}</span>
-          <a href="${h.url}" target="_blank">sunnah.com ↗</a>
-        </div>
-        <div class="h-grade">${h.grade}</div>
-      `;
+      card.innerHTML = `<div class="h-arabic">${h.arabic}</div><div class="h-text">${h.text}</div><div class="h-ref"><span>${h.ref}</span><a href="${h.url}" target="_blank">sunnah.com ↗</a></div><div class="h-grade">${h.grade}</div>`;
       container.appendChild(card);
     });
   }
@@ -562,72 +258,75 @@
     VIRTUES.forEach(v => {
       const card = document.createElement('div');
       card.className = 'hadith-card';
-      card.innerHTML = `
-        <div class="h-text">${v.text}</div>
-        <div class="h-ref">
-          <span>${v.ref}</span>
-          <a href="${v.url}" target="_blank">sunnah.com ↗</a>
-        </div>
-      `;
+      card.innerHTML = `<div class="h-text">${v.text}</div><div class="h-ref"><span>${v.ref}</span><a href="${v.url}" target="_blank">sunnah.com ↗</a></div>`;
       container.appendChild(card);
     });
   }
 
   /* ============================================================
-     HADITH FETCH — hardcoded collections, multiple URL fallbacks
+     FULL HADITH DATASET — AhmedBaset/hadith-json (50,884 hadith)
+     https://github.com/AhmedBaset/hadith-json
      ============================================================ */
-  const HADITH_COLLECTIONS = [
-    { key: 'eng-bukhari',        name: 'Sahih al-Bukhari',      slug: 'bukhari' },
-    { key: 'eng-muslim',         name: 'Sahih Muslim',          slug: 'muslim' },
-    { key: 'eng-abudawud',       name: 'Sunan Abi Dawud',       slug: 'abudawud' },
-    { key: 'eng-tirmidhi',       name: "Jami' at-Tirmidhi",     slug: 'tirmidhi' },
-    { key: 'eng-nasai',          name: "Sunan an-Nasa'i",       slug: 'nasai' },
-    { key: 'eng-ibnmajah',       name: 'Sunan Ibn Majah',       slug: 'ibnmajah' },
-    { key: 'eng-malik',          name: 'Muwatta Malik',         slug: 'malik' },
-    { key: 'eng-nawawi',         name: '40 Hadith Nawawi',      slug: 'nawawi' },
-    { key: 'eng-qudsi',          name: '40 Hadith Qudsi',       slug: 'qudsi' },
-    { key: 'eng-riyadussalihin', name: 'Riyad as-Salihin',      slug: 'riyadussalihin' }
+  const GITHUB_RAW = 'https://raw.githubusercontent.com/AhmedBaset/hadith-json/main/db/by_book';
+
+  const COLLECTIONS = [
+    { file: 'the_9_books/bukhari.json',  name: 'Sahih al-Bukhari',      slug: 'bukhari' },
+    { file: 'the_9_books/muslim.json',   name: 'Sahih Muslim',          slug: 'muslim' },
+    { file: 'the_9_books/abudawud.json', name: 'Sunan Abi Dawud',       slug: 'abudawud' },
+    { file: 'the_9_books/tirmidhi.json', name: "Jami' at-Tirmidhi",     slug: 'tirmidhi' },
+    { file: 'the_9_books/nasai.json',    name: "Sunan an-Nasa'i",       slug: 'nasai' },
+    { file: 'the_9_books/ibnmajah.json', name: 'Sunan Ibn Majah',       slug: 'ibnmajah' },
+    { file: 'the_9_books/malik.json',    name: 'Muwatta Malik',         slug: 'malik' },
+    { file: 'the_9_books/ahmad.json',    name: 'Musnad Ahmad',          slug: 'ahmad' },
+    { file: 'the_9_books/darimi.json',   name: 'Sunan ad-Darimi',       slug: 'darimi' },
+    { file: 'forties/nawawi40.json',     name: '40 Hadith Nawawi',      slug: 'nawawi' },
+    { file: 'forties/qudsi40.json',      name: '40 Hadith Qudsi',       slug: 'qudsi' },
+    { file: 'forties/shahwaliullah40.json', name: '40 Hadith Shah Waliullah', slug: 'shahwaliullah40' },
+    { file: 'other_books/RyadSalihin.json', name: 'Riyad as-Salihin',   slug: 'riyadussalihin' },
+    { file: 'other_books/Mishkat.json',  name: 'Mishkat al-Masabih',    slug: 'mishkat' },
+    { file: 'other_books/Bulugh.json',   name: 'Bulugh al-Maram',       slug: 'bulugh' },
+    { file: 'other_books/Adab.json',     name: 'Al-Adab Al-Mufrad',     slug: 'adab' },
+    { file: 'other_books/Shamail.json',  name: "Shama'il Muhammadiyah", slug: 'shamail' }
   ];
 
-  async function fetchJSON(url) {
-    const res = await fetch(url, { mode: 'cors' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const t = text.trim();
-    if (!t.startsWith('{') && !t.startsWith('[')) throw new Error('Not JSON');
-    return JSON.parse(t);
-  }
-
-  async function fetchCollection(key) {
-    const cacheKey = 'dc_hadith_' + key;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
-    }
-
+  async function fetchWithFallback(path) {
+    // Try GitHub raw first (works from GitHub Pages, no CORS issues)
     const urls = [
-      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/' + key + '.min.json',
-      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/' + key + '.json',
-      'https://raw.githubusercontent.com/fawazahmed0/hadith-api/1/editions/' + key + '.json'
+      'https://raw.githubusercontent.com/AhmedBaset/hadith-json/main/db/by_book/' + path,
+      'https://cdn.jsdelivr.net/gh/AhmedBaset/hadith-json@main/db/by_book/' + path
     ];
-
     let lastErr = null;
     for (const url of urls) {
       try {
-        const data = await fetchJSON(url);
-        if (data && Array.isArray(data.hadiths) && data.hadiths.length > 0) {
-          const s = JSON.stringify(data);
-          if (s.length < 1_800_000) {
-            try { localStorage.setItem(cacheKey, s); } catch (e) {}
-          }
-          return data;
-        }
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
       } catch (e) {
         lastErr = e;
         continue;
       }
     }
-    throw lastErr || new Error('All sources failed for ' + key);
+    throw lastErr || new Error('All sources failed');
+  }
+
+  async function fetchCollection(coll) {
+    const cacheKey = 'dc_hadith_' + coll.slug;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+    const data = await fetchWithFallback(coll.file);
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('Empty collection');
+    }
+    // Try to cache if not too large (localStorage usually ~5MB limit)
+    try {
+      const s = JSON.stringify(data);
+      if (s.length < 1_500_000) {
+        localStorage.setItem(cacheKey, s);
+      }
+    } catch (e) {}
+    return data;
   }
 
   async function showRandomHadith() {
@@ -635,20 +334,21 @@
     container.innerHTML = '<div style="text-align:center;padding:30px;color:#6c8099;"><span class="loading-spinner"></span>Loading hadith...</div>';
 
     try {
-      const coll = HADITH_COLLECTIONS[Math.floor(Math.random() * HADITH_COLLECTIONS.length)];
-      const data = await fetchCollection(coll.key);
-      const hadiths = data.hadiths;
+      const coll = COLLECTIONS[Math.floor(Math.random() * COLLECTIONS.length)];
+      const hadiths = await fetchCollection(coll);
       const h = hadiths[Math.floor(Math.random() * hadiths.length)];
 
-      const num = h.hadithnumber || h.hadithNumber || h.number || '?';
-      const english = h.text || (h.english && h.english.text) || '';
       const arabic = h.arabic || '';
+      const english = (h.english && h.english.text) || h.text || '';
+      const narrator = (h.english && h.english.narrator) || '';
+      const num = h.id || '?';
       const sunnahUrl = 'https://sunnah.com/' + coll.slug + ':' + num;
 
       container.innerHTML = `
         <div class="hadith-card" style="border-color: #2a6b9a;">
           <div class="hadith-topic-badge">${coll.name}</div>
           ${arabic ? '<div class="h-arabic">' + arabic + '</div>' : ''}
+          ${narrator ? '<div style="font-size:12px;color:#6c8099;margin-bottom:6px;">Narrated by ' + narrator + '</div>' : ''}
           <div class="h-text">${english}</div>
           <div class="h-ref">
             <span>${coll.name} #${num}</span>
@@ -660,36 +360,22 @@
       console.error('Hadith fetch error:', err);
       container.innerHTML = `
         <div class="hadith-card" style="border-color:#5a2a2a;">
-          <div class="h-text" style="color:#ff9b9b;">
-            Couldn't load: ${err.message}
-          </div>
-          <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">
-            Tap "Another Hadith" to try a different collection.
-          </div>
+          <div class="h-text" style="color:#ff9b9b;">Couldn't load: ${err.message}</div>
+          <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">Tap "Another Hadith" to try a different collection.</div>
         </div>
       `;
     }
   }
 
-  /* ============================================================
-     ACTIONS
-     ============================================================ */
   function tap() {
     if (state.count >= state.target) {
-      state.count = 1;
-      state.total += 1;
-      vibe([0, 30]);
+      state.count = 1; state.total += 1; vibe([0, 30]);
     } else {
-      state.count += 1;
-      state.total += 1;
-      if (state.count === state.target) {
-        vibe([0, 80, 60, 80, 60, 120]);
-      } else {
-        vibe([0, 30]);
-      }
+      state.count += 1; state.total += 1;
+      if (state.count === state.target) vibe([0, 80, 60, 80, 60, 120]);
+      else vibe([0, 30]);
     }
-    save();
-    render();
+    save(); render();
   }
 
   function closeAllSheets() {
@@ -699,61 +385,23 @@
     $('overlay').classList.remove('open');
   }
 
-  /* ============================================================
-     EVENT LISTENERS
-     ============================================================ */
   $('counter').addEventListener('click', tap);
-
   $('undoBtn').onclick = () => {
     if (state.total === 0) return;
-    if (state.count > 1) {
-      state.count -= 1;
-    } else if (state.total - 1 >= state.target) {
-      state.count = state.target;
-    } else {
-      state.count = 0;
-    }
-    state.total -= 1;
-    save();
-    render();
-    vibe(15);
+    if (state.count > 1) state.count -= 1;
+    else if (state.total - 1 >= state.target) state.count = state.target;
+    else state.count = 0;
+    state.total -= 1; save(); render(); vibe(15);
   };
-
   $('resetBtn').onclick = () => {
-    if (confirm('Reset count and total?')) {
-      state.count = 0;
-      state.total = 0;
-      save();
-      render();
-      vibe(15);
-    }
+    if (confirm('Reset count and total?')) { state.count = 0; state.total = 0; save(); render(); vibe(15); }
   };
-
-  $('prevBtn').onclick = () => {
-    state.idx = (state.idx - 1 + PRESETS.length) % PRESETS.length;
-    save(); render(); vibe(15);
-  };
-  $('nextBtn').onclick = () => {
-    state.idx = (state.idx + 1) % PRESETS.length;
-    save(); render(); vibe(15);
-  };
-
-  $('hadithBtn').onclick = () => {
-    renderHadith();
-    closeAllSheets();
-    $('hadithSheet').classList.add('open');
-    $('overlay').classList.add('open');
-  };
+  $('prevBtn').onclick = () => { state.idx = (state.idx - 1 + PRESETS.length) % PRESETS.length; save(); render(); vibe(15); };
+  $('nextBtn').onclick = () => { state.idx = (state.idx + 1) % PRESETS.length; save(); render(); vibe(15); };
+  $('hadithBtn').onclick = () => { renderHadith(); closeAllSheets(); $('hadithSheet').classList.add('open'); $('overlay').classList.add('open'); };
   $('closeHadith').onclick = closeAllSheets;
-
-  $('settingsBtn').onclick = () => {
-    renderVirtues();
-    closeAllSheets();
-    $('settingsSheet').classList.add('open');
-    $('overlay').classList.add('open');
-  };
+  $('settingsBtn').onclick = () => { renderVirtues(); closeAllSheets(); $('settingsSheet').classList.add('open'); $('overlay').classList.add('open'); };
   $('closeSettings').onclick = closeAllSheets;
-
   $('randomHadithBtn').onclick = () => {
     closeAllSheets();
     $('randomHadithSheet').classList.add('open');
@@ -762,21 +410,10 @@
     vibe(20);
   };
   $('closeRandomHadith').onclick = closeAllSheets;
-  $('newRandomHadith').onclick = () => {
-    showRandomHadith();
-    vibe(15);
-  };
-
+  $('newRandomHadith').onclick = () => { showRandomHadith(); vibe(15); };
   $('overlay').onclick = closeAllSheets;
-
-  $('vibSwitch').onclick = () => {
-    state.vib = !state.vib;
-    save(); render();
-    if (state.vib) vibe(30);
-  };
-
+  $('vibSwitch').onclick = () => { state.vib = !state.vib; save(); render(); if (state.vib) vibe(30); };
   document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
-
   render();
 })();
 </script>
