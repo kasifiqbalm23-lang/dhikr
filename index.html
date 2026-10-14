@@ -183,7 +183,7 @@
 
   const K = {
     count: 'dc_count', target: 'dc_target', total: 'dc_total',
-    idx: 'dc_idx', vib: 'dc_vib', firstLoadDone: 'dc_first_load'
+    idx: 'dc_idx', vib: 'dc_vib'
   };
 
   let state = {
@@ -261,154 +261,69 @@
   }
 
   /* ============================================================
-     FULL HADITH DATASET — tiered by size so first load is fast
+     HADITH API — fawazahmed0/hadith-api (reliable, no 404s)
      ============================================================ */
-  const GITHUB_RAW = 'https://raw.githubusercontent.com/AhmedBaset/hadith-json/main/db/by_book/';
+  const API_BASE = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
 
-  // Small collections: load in seconds. Used for the FIRST tap ever.
-  const SMALL_COLLECTIONS = [
-    { file: 'forties/nawawi40.json',        name: '40 Hadith Nawawi',          slug: 'nawawi',         size: '~50 KB' },
-    { file: 'forties/qudsi40.json',         name: '40 Hadith Qudsi',           slug: 'qudsi',          size: '~50 KB' },
-    { file: 'forties/shahwaliullah40.json', name: '40 Hadith Shah Waliullah',  slug: 'shahwaliullah40', size: '~50 KB' },
-    { file: 'other_books/Shamail.json',     name: "Shama'il Muhammadiyah",     slug: 'shamail',        size: '~500 KB' },
-    { file: 'other_books/Adab.json',        name: 'Al-Adab Al-Mufrad',         slug: 'adab',           size: '~1 MB' },
-    { file: 'other_books/Bulugh.json',      name: 'Bulugh al-Maram',           slug: 'bulugh',         size: '~2 MB' },
-    { file: 'other_books/RyadSalihin.json', name: 'Riyad as-Salihin',          slug: 'riyadussalihin', size: '~2 MB' },
-    { file: 'the_9_books/malik.json',       name: 'Muwatta Malik',             slug: 'malik',          size: '~2 MB' },
-    { file: 'the_9_books/darimi.json',      name: 'Sunan ad-Darimi',           slug: 'darimi',         size: '~2 MB' }
+  const EDITIONS = [
+    { slug: 'eng-bukhari',  name: 'Sahih al-Bukhari' },
+    { slug: 'eng-muslim',   name: 'Sahih Muslim' },
+    { slug: 'eng-abudawud', name: 'Sunan Abi Dawud' },
+    { slug: 'eng-tirmidhi', name: "Jami' at-Tirmidhi" },
+    { slug: 'eng-nasai',    name: "Sunan an-Nasa'i" },
+    { slug: 'eng-ibnmajah', name: 'Sunan Ibn Majah' },
+    { slug: 'eng-malik',    name: 'Muwatta Malik' },
+    { slug: 'eng-nawawi',   name: '40 Hadith Nawawi' },
+    { slug: 'eng-qudsi',    name: '40 Hadith Qudsi' }
   ];
 
-  // Medium collections: 3–10 MB. Used on subsequent taps.
-  const MEDIUM_COLLECTIONS = [
-    { file: 'the_9_books/tirmidhi.json',    name: "Jami' at-Tirmidhi",         slug: 'tirmidhi',       size: '~5 MB' },
-    { file: 'the_9_books/ibnmajah.json',    name: 'Sunan Ibn Majah',           slug: 'ibnmajah',       size: '~5 MB' },
-    { file: 'the_9_books/nasai.json',       name: "Sunan an-Nasa'i",           slug: 'nasai',          size: '~6 MB' },
-    { file: 'the_9_books/abudawud.json',    name: 'Sunan Abi Dawud',           slug: 'abudawud',       size: '~6 MB' },
-    { file: 'other_books/Mishkat.json',     name: 'Mishkat al-Masabih',        slug: 'mishkat',        size: '~5 MB' },
-    { file: 'the_9_books/muslim.json',      name: 'Sahih Muslim',              slug: 'muslim',         size: '~8 MB' },
-    { file: 'the_9_books/bukhari.json',     name: 'Sahih al-Bukhari',          slug: 'bukhari',        size: '~10 MB' }
-  ];
-
-  // Note: Musnad Ahmad (~25 MB) is excluded — it's too big for mobile networks.
-  // Its content is covered by the other collections anyway.
-
-  async function fetchWithFallback(path) {
-    const urls = [
-      GITHUB_RAW + path,
-      'https://cdn.jsdelivr.net/gh/AhmedBaset/hadith-json@main/db/by_book/' + path
-    ];
-    let lastErr = null;
-    for (const url of urls) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
-      } catch (e) {
-        lastErr = e;
-        continue;
-      }
-    }
-    throw lastErr || new Error('All sources failed');
-  }
-
-  async function fetchCollection(coll) {
-    const cacheKey = 'dc_hadith_' + coll.slug;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
-    }
-    const data = await fetchWithFallback(coll.file);
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('Empty collection');
-    }
-    // Try to cache (localStorage is typically ~5 MB, so skip big collections)
-    try {
-      const s = JSON.stringify(data);
-      if (s.length < 1_500_000) {
-        localStorage.setItem(cacheKey, s);
-      }
-    } catch (e) {}
-    return data;
+  async function fetchJSON(url) {
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
   }
 
   async function showRandomHadith() {
     const container = $('randomHadithContent');
     container.innerHTML = '<div style="text-align:center;padding:30px;color:#6c8099;"><span class="loading-spinner"></span>Loading hadith...</div>';
 
-    const firstLoadDone = localStorage.getItem(K.firstLoadDone) === 'true';
-
-    // Pick a collection: on the very first load ever, use a small one so
-    // it succeeds fast even on slow connections. After that, mix small + medium.
-    let coll;
-    if (!firstLoadDone) {
-      coll = SMALL_COLLECTIONS[Math.floor(Math.random() * SMALL_COLLECTIONS.length)];
-    } else {
-      const pool = Math.random() < 0.5 ? SMALL_COLLECTIONS : MEDIUM_COLLECTIONS;
-      coll = pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    // Show which collection is loading + approximate size
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:#6c8099;"><span class="loading-spinner"></span>Loading ' + coll.name + ' (' + coll.size + ')...</div>';
-
     try {
-      const hadiths = await fetchCollection(coll);
-      localStorage.setItem(K.firstLoadDone, 'true');
+      const ed = EDITIONS[Math.floor(Math.random() * EDITIONS.length)];
+
+      // fawazahmed0 API returns an object with a "hadiths" array
+      const data = await fetchJSON(API_BASE + ed.slug + '.json');
+      const hadiths = data.hadiths || data;
+      if (!Array.isArray(hadiths) || hadiths.length === 0) {
+        throw new Error('No hadiths in ' + ed.name);
+      }
 
       const h = hadiths[Math.floor(Math.random() * hadiths.length)];
 
+      // The API structure: { hadithnumber, text, arabic, ... }
+      const num = h.hadithnumber || h.hadithNumber || h.id || '?';
+      const english = h.text || (h.english && h.english.text) || '';
       const arabic = h.arabic || '';
-      const english = (h.english && h.english.text) || h.text || '';
-      const narrator = (h.english && h.english.narrator) || '';
-      const num = h.id || '?';
-      const sunnahUrl = 'https://sunnah.com/' + coll.slug + ':' + num;
+      const sunnahUrl = 'https://sunnah.com/' + ed.slug.replace('eng-', '') + ':' + num;
 
       container.innerHTML = `
         <div class="hadith-card" style="border-color: #2a6b9a;">
-          <div class="hadith-topic-badge">${coll.name}</div>
+          <div class="hadith-topic-badge">${ed.name}</div>
           ${arabic ? '<div class="h-arabic">' + arabic + '</div>' : ''}
-          ${narrator ? '<div style="font-size:12px;color:#6c8099;margin-bottom:6px;">Narrated by ' + narrator + '</div>' : ''}
           <div class="h-text">${english}</div>
           <div class="h-ref">
-            <span>${coll.name} #${num}</span>
+            <span>${ed.name} #${num}</span>
             <a href="${sunnahUrl}" target="_blank">sunnah.com ↗</a>
           </div>
         </div>
       `;
     } catch (err) {
       console.error('Hadith fetch error:', err);
-      // Fallback: try a tiny collection before giving up
-      try {
-        const tiny = SMALL_COLLECTIONS[0]; // nawawi40, ~50 KB
-        const hadiths = await fetchCollection(tiny);
-        const h = hadiths[Math.floor(Math.random() * hadiths.length)];
-        const num = h.id || '?';
-        const narrator = (h.english && h.english.narrator) || '';
-        const english = (h.english && h.english.text) || h.text || '';
-        const sunnahUrl = 'https://sunnah.com/' + tiny.slug + ':' + num;
-        localStorage.setItem(K.firstLoadDone, 'true');
-        container.innerHTML = `
-          <div class="hadith-card" style="border-color: #2a6b9a;">
-            <div class="hadith-topic-badge">${tiny.name} (fallback)</div>
-            ${h.arabic ? '<div class="h-arabic">' + h.arabic + '</div>' : ''}
-            ${narrator ? '<div style="font-size:12px;color:#6c8099;margin-bottom:6px;">Narrated by ' + narrator + '</div>' : ''}
-            <div class="h-text">${english}</div>
-            <div class="h-ref">
-              <span>${tiny.name} #${num}</span>
-              <a href="${sunnahUrl}" target="_blank">sunnah.com ↗</a>
-            </div>
-          </div>
-        `;
-      } catch (err2) {
-        container.innerHTML = `
-          <div class="hadith-card" style="border-color:#5a2a2a;">
-            <div class="h-text" style="color:#ff9b9b;">Couldn't load: ${err.message}</div>
-            <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">Check your connection and tap "Another Hadith" to retry.</div>
-          </div>
-        `;
-      }
+      container.innerHTML = `
+        <div class="hadith-card" style="border-color:#5a2a2a;">
+          <div class="h-text" style="color:#ff9b9b;">Couldn't load: ${err.message}</div>
+          <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">Tap "Another Hadith" to try again.</div>
+        </div>
+      `;
     }
   }
 
