@@ -3,123 +3,626 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f1720">
+<meta name="theme-color" content="#0a1420">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Dhikr Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Nur — Islamic Companion</title>
 <style>
+  :root {
+    --bg: #0a1420;
+    --surface: #131e2e;
+    --surface-2: #1a2738;
+    --surface-3: #22334a;
+    --border: #24344a;
+    --border-bright: #324a68;
+    --text: #e8eef5;
+    --text-2: #8fa3b8;
+    --text-3: #5a6a7d;
+    --gold: #d4a84b;
+    --gold-soft: #e8c878;
+    --blue: #4a90c9;
+    --blue-bright: #5fa8e0;
+    --green: #2a8b5c;
+    --green-bright: #3ea877;
+    --red: #d95a5a;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
-    height: 100%; background: #0f1720; color: #e8eef5;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    overflow: hidden; user-select: none; -webkit-user-select: none;
+    height: 100%; background: var(--bg); color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    user-select: none; -webkit-user-select: none;
   }
-  body { display: flex; flex-direction: column; padding: 16px; gap: 12px; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #8fa3b8; }
-  .topbar button { background: #1a2530; color: #e8eef5; border: none; padding: 10px 14px; border-radius: 10px; font-size: 16px; cursor: pointer; }
-  .topbar button:active { background: #253240; }
-  .dhikr-box { text-align: center; margin-top: 4px; }
-  .arabic { font-size: 34px; font-weight: 700; line-height: 1.4; color: #f0f6ff; direction: rtl; }
-  .translit { font-size: 17px; color: #a8bdd4; margin-top: 6px; }
-  .meaning { font-size: 13px; color: #6c8099; margin-top: 4px; }
-  .hadith-btn { margin-top: 10px; background: #1e3a5f; color: #8fb4d9; border: 1px solid #2a4a6b; padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 600; }
-  .hadith-btn:active { background: #2a4a6b; }
-  .counter-wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
-  .counter { width: min(68vw, 68vh, 320px); height: min(68vw, 68vh, 320px); border-radius: 50%; background: radial-gradient(circle at 30% 25%, #1e3a5f, #12293f 70%); border: 3px solid #2a4a6b; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.06s ease, background 0.2s ease; box-shadow: 0 0 40px rgba(58, 130, 200, 0.15) inset; }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(74, 144, 201, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(212, 168, 75, 0.06) 0%, transparent 50%);
+  }
+  .arabic-font { font-family: 'Amiri', serif; }
+
+  .screen {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+    display: flex; flex-direction: column;
+    padding: 20px 18px 20px;
+    overflow-y: auto; overflow-x: hidden;
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen.hidden {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .screen.home.hidden {
+    transform: translateX(-25%);
+    opacity: 0;
+  }
+
+  .home-header { padding: 8px 0 20px; }
+  .greeting-ar {
+    font-family: 'Amiri', serif;
+    font-size: 30px;
+    color: var(--gold-soft);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .greeting-en { font-size: 15px; color: var(--text-2); font-weight: 500; }
+  .date-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 12px; font-size: 13px; color: var(--text-3);
+  }
+  .date-sep { color: var(--border-bright); }
+
+  .resume-card {
+    background: linear-gradient(135deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--border-bright);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .resume-card:active { transform: scale(0.98); border-color: var(--gold); }
+  .resume-label {
+    font-size: 11px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-weight: 700; margin-bottom: 10px;
+  }
+  .resume-ar {
+    font-family: 'Amiri', serif;
+    font-size: 26px; color: var(--text);
+    direction: rtl; margin-bottom: 4px;
+  }
+  .resume-sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+  .mini-bar { height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
+  .mini-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--gold));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .resume-meta {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-3);
+    margin-top: 8px; font-weight: 600;
+  }
+
+  .section-title {
+    font-size: 12px; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 700; margin-bottom: 14px;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-bottom: 20px;
+  }
+  .feature-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+    position: relative;
+    min-height: 118px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+  .feature-tile:active {
+    transform: scale(0.97);
+    border-color: var(--border-bright);
+    background: var(--surface-2);
+  }
+  .feature-tile.coming-soon { opacity: 0.55; }
+  .feature-tile.coming-soon:active { transform: none; }
+  .tile-icon { font-size: 26px; line-height: 1; margin-bottom: 12px; display: block; }
+  .tile-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .tile-sub { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+  .tile-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 9px; font-weight: 700;
+    color: var(--text-3);
+    background: var(--surface-3);
+    padding: 3px 7px; border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .feature-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0 14px;
+    flex-shrink: 0;
+  }
+  .feature-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .icon-btn:active { background: var(--surface-2); }
+  .icon-btn.ghost {
+    background: transparent;
+    border-color: transparent;
+    font-size: 22px;
+    width: 36px;
+  }
+
+  .dhikr-display {
+    text-align: center;
+    padding: 8px 0 16px;
+    flex-shrink: 0;
+  }
+  .dhikr-ar {
+    font-family: 'Amiri', serif;
+    font-size: 38px; font-weight: 700;
+    line-height: 1.4; color: var(--text);
+    direction: rtl; margin-bottom: 8px;
+    text-shadow: 0 0 30px rgba(212, 168, 75, 0.15);
+  }
+  .dhikr-translit { font-size: 16px; color: var(--gold-soft); font-weight: 600; margin-bottom: 3px; }
+  .dhikr-meaning { font-size: 12px; color: var(--text-3); }
+  .hadith-chip {
+    margin-top: 12px;
+    background: rgba(74, 144, 201, 0.1);
+    color: var(--blue-bright);
+    border: 1px solid rgba(74, 144, 201, 0.25);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hadith-chip:active { background: rgba(74, 144, 201, 0.2); }
+
+  .counter-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    position: relative;
+  }
+  .counter-wrap {
+    position: relative;
+    width: min(72vw, 72vh, 340px);
+    height: min(72vw, 72vh, 340px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .progress-ring {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+  .ring-bg {
+    fill: none;
+    stroke: var(--surface-3);
+    stroke-width: 4;
+  }
+  .ring-fill {
+    fill: none;
+    stroke: url(#ringGradient);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .counter {
+    width: calc(100% - 24px);
+    height: calc(100% - 24px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, var(--surface-2), var(--surface) 75%);
+    border: 1px solid var(--border-bright);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.08s ease, background 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 0 60px rgba(74, 144, 201, 0.1) inset, 0 8px 30px rgba(0, 0, 0, 0.4);
+    position: relative;
+  }
   .counter:active { transform: scale(0.96); }
-  .counter.done { background: radial-gradient(circle at 30% 25%, #1e5f3a, #123f29 70%); border-color: #2a8b5c; box-shadow: 0 0 50px rgba(58, 200, 130, 0.3) inset; }
-  .count { font-size: 74px; font-weight: 800; line-height: 1; color: #ffffff; }
-  .target { font-size: 22px; color: #8fb4d9; margin-top: 6px; }
-  .controls { display: flex; gap: 10px; justify-content: center; align-items: center; padding-bottom: 60px; }
-  .controls button { background: #1a2530; color: #e8eef5; border: none; padding: 12px 20px; border-radius: 12px; font-size: 15px; cursor: pointer; font-weight: 600; }
-  .controls button:active { background: #253240; }
-  .controls button.reset { background: #3a1a1a; color: #ff9b9b; }
-  .sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #16202b; border-radius: 20px 20px 0 0; padding: 20px 20px 28px; transform: translateY(100%); transition: transform 0.25s ease; z-index: 10; max-height: 82vh; overflow-y: auto; border-top: 1px solid #253240; }
+  .counter.done {
+    background: radial-gradient(circle at 30% 25%, #1a4a35, #0f2e22 75%);
+    border-color: var(--green);
+    box-shadow: 0 0 70px rgba(62, 168, 119, 0.25) inset, 0 8px 30px rgba(0, 0, 0, 0.4);
+  }
+  .count-num {
+    font-size: 88px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .count-total {
+    font-size: 20px;
+    color: var(--text-3);
+    margin-top: 8px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dhikr-controls {
+    display: flex; gap: 10px;
+    justify-content: center; align-items: center;
+    padding: 16px 0 4px;
+    flex-shrink: 0;
+  }
+  .ctrl-btn {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .ctrl-btn:active { background: var(--surface-2); }
+  .ctrl-btn.reset { color: #ff9b9b; background: rgba(217, 90, 90, 0.1); border-color: rgba(217, 90, 90, 0.2); }
+
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 22px 20px 32px;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 10;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-bright);
+    -webkit-overflow-scrolling: touch;
+  }
   .sheet.open { transform: translateY(0); }
-  .sheet h3 { font-size: 15px; color: #8fa3b8; margin-bottom: 10px; font-weight: 600; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .chip { background: #1e2b38; color: #cfe0f0; border: 1px solid #2a3a4a; padding: 10px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; }
-  .chip.active { background: #2a6b9a; border-color: #3a90c9; color: #fff; }
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-top: 1px solid #253240; }
-  .switch { width: 50px; height: 28px; border-radius: 14px; background: #2a3a4a; position: relative; cursor: pointer; transition: background 0.2s; }
-  .switch.on { background: #2a6b9a; }
-  .switch::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: left 0.2s; }
-  .switch.on::after { left: 25px; }
-  .close-sheet { width: 100%; padding: 14px; background: #253240; color: #e8eef5; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; margin-top: 12px; cursor: pointer; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 9; }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    margin: -6px auto 16px;
+  }
+  .sheet-title {
+    font-size: 15px; color: var(--text);
+    margin-bottom: 16px; font-weight: 700;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .chip {
+    background: var(--surface-2); color: var(--text-2);
+    border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 20px;
+    font-size: 13px; cursor: pointer;
+    font-weight: 600;
+  }
+  .chip.active {
+    background: var(--blue); border-color: var(--blue-bright);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(74, 144, 201, 0.3);
+  }
+  .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .switch {
+    width: 48px; height: 28px; border-radius: 14px;
+    background: var(--surface-3);
+    position: relative; cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .switch.on { background: var(--blue); }
+  .switch::after {
+    content: ''; position: absolute;
+    width: 22px; height: 22px;
+    border-radius: 50%; background: #fff;
+    top: 3px; left: 3px;
+    transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .switch.on::after { left: 23px; }
+  .close-sheet {
+    width: 100%; padding: 15px;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 15px; font-weight: 700;
+    margin-top: 14px; cursor: pointer;
+  }
+  .close-sheet.primary {
+    background: var(--blue); border-color: var(--blue-bright); color: #fff;
+  }
+  .overlay {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 9;
+  }
   .overlay.open { opacity: 1; pointer-events: auto; }
-  .hadith-card { background: #16202b; border: 1px solid #253240; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-  .hadith-card .h-arabic { font-size: 20px; line-height: 1.7; direction: rtl; color: #f0f6ff; margin-bottom: 10px; text-align: right; }
-  .hadith-card .h-text { font-size: 14px; line-height: 1.6; color: #cfe0f0; margin-bottom: 10px; }
-  .hadith-card .h-ref { font-size: 12px; color: #6c8099; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .hadith-card .h-ref a { color: #5a9fd4; text-decoration: none; }
-  .hadith-card .h-grade { font-size: 11px; color: #4a8a5a; background: #1a2a1e; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; }
+
+  .hadith-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .hadith-card .h-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 22px; line-height: 1.8;
+    direction: rtl; color: var(--text);
+    margin-bottom: 12px; text-align: right;
+  }
+  .hadith-card .h-text {
+    font-size: 14px; line-height: 1.65;
+    color: var(--text-2);
+    margin-bottom: 12px;
+  }
+  .hadith-card .h-ref {
+    font-size: 12px; color: var(--text-3);
+    font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .hadith-card .h-ref a { color: var(--blue-bright); text-decoration: none; }
+  .hadith-card .h-grade {
+    font-size: 11px; color: var(--green-bright);
+    background: rgba(62, 168, 119, 0.1);
+    padding: 3px 9px; border-radius: 10px;
+    display: inline-block; margin-top: 10px;
+    font-weight: 600;
+  }
+  .hadith-topic-badge {
+    display: inline-block;
+    background: rgba(74, 144, 201, 0.12);
+    color: var(--blue-bright);
+    font-size: 11px; padding: 4px 11px;
+    border-radius: 10px; margin-bottom: 12px;
+    font-weight: 700;
+  }
   .virtues-list { margin-bottom: 16px; }
-  .hadith-topic-badge { display: inline-block; background: #1e3a5f; color: #8fb4d9; font-size: 11px; padding: 3px 10px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; }
-  #randomHadithBtn { position: fixed; bottom: 22px; right: 22px; height: 52px; border-radius: 26px; background: linear-gradient(135deg, #2a6b9a, #1e4a6b); border: 2px solid #3a90c9; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(42, 107, 154, 0.5); z-index: 8; display: flex; align-items: center; gap: 8px; padding: 0 20px; transition: transform 0.1s; }
-  #randomHadithBtn:active { transform: scale(0.94); }
-  .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #2a6b9a; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+
+  .loading-box {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 22px; height: 22px;
+    border: 2px solid var(--border-bright);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <button id="settingsBtn">⚙️</button>
-  <div>Total: <span id="total">0</span></div>
-  <button id="undoBtn">↩</button>
-</div>
+<!-- HOME -->
+<div class="screen home" id="homeScreen">
+  <div class="home-header">
+    <div class="greeting-ar arabic-font">السَّلَامُ عَلَيْكُمْ</div>
+    <div class="greeting-en">Peace be upon you</div>
+    <div class="date-row">
+      <span id="hijriDate">—</span>
+      <span class="date-sep">·</span>
+      <span id="gregDate">—</span>
+    </div>
+  </div>
 
-<div class="dhikr-box">
-  <div class="arabic" id="arabic"></div>
-  <div class="translit" id="translit"></div>
-  <div class="meaning" id="meaning"></div>
-  <button class="hadith-btn" id="hadithBtn">📖 Hadith Evidence</button>
-</div>
+  <div class="resume-card" id="resumeCard">
+    <div class="resume-label">Continue Dhikr</div>
+    <div class="resume-ar arabic-font" id="resumeAr">سُبْحَانَ اللَّهِ</div>
+    <div class="resume-sub" id="resumeSub">SubhanAllah — Glory be to Allah</div>
+    <div class="mini-bar"><div class="mini-bar-fill" id="resumeBar" style="width: 0%"></div></div>
+    <div class="resume-meta">
+      <span id="resumeCount">0 / 33</span>
+      <span id="resumeTotal">Total: 0</span>
+    </div>
+  </div>
 
-<div class="counter-wrap">
-  <div class="counter" id="counter">
-    <div class="count" id="count">0</div>
-    <div class="target" id="targetDisplay">/ 33</div>
+  <div class="section-title">Features</div>
+
+  <div class="feature-grid">
+    <div class="feature-tile" data-feature="dhikr">
+      <div class="tile-icon">📿</div>
+      <div>
+        <div class="tile-name">Dhikr Counter</div>
+        <div class="tile-sub">Tasbih with hadith evidence</div>
+      </div>
+    </div>
+
+    <div class="feature-tile" data-feature="hadith">
+      <div class="tile-icon">📚</div>
+      <div>
+        <div class="tile-name">Random Hadith</div>
+        <div class="tile-sub">50,000+ authentic narrations</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="prayer">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">🕌</div>
+      <div>
+        <div class="tile-name">Prayer Times</div>
+        <div class="tile-sub">Five daily salah times</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="quran">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">📖</div>
+      <div>
+        <div class="tile-name">Quran</div>
+        <div class="tile-sub">Selected surahs &amp; ayat</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="adhkar">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">🌅</div>
+      <div>
+        <div class="tile-name">Adhkar</div>
+        <div class="tile-sub">Morning &amp; evening</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="duas">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">🤲</div>
+      <div>
+        <div class="tile-name">Duas</div>
+        <div class="tile-sub">By occasion &amp; time</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="qibla">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">🧭</div>
+      <div>
+        <div class="tile-name">Qibla</div>
+        <div class="tile-sub">Direction to the Kaaba</div>
+      </div>
+    </div>
+
+    <div class="feature-tile coming-soon" data-feature="names">
+      <div class="tile-badge">Soon</div>
+      <div class="tile-icon">✨</div>
+      <div>
+        <div class="tile-name">99 Names</div>
+        <div class="tile-sub">Asma ul-Husna</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="controls">
-  <button id="prevBtn">◀</button>
-  <button class="reset" id="resetBtn">Reset</button>
-  <button id="nextBtn">▶</button>
-</div>
+<!-- DHIKR -->
+<div class="screen hidden" id="dhikrScreen">
+  <div class="feature-header">
+    <button class="icon-btn ghost" id="backFromDhikr">←</button>
+    <div class="feature-title">Dhikr Counter</div>
+    <button class="icon-btn ghost" id="settingsBtn">⚙️</button>
+  </div>
 
-<button id="randomHadithBtn" aria-label="Random hadith">📚 Random Hadith</button>
+  <div class="dhikr-display">
+    <div class="dhikr-ar arabic-font" id="arabic"></div>
+    <div class="dhikr-translit" id="translit"></div>
+    <div class="dhikr-meaning" id="meaning"></div>
+    <button class="hadith-chip" id="hadithBtn">📖 Hadith Evidence</button>
+  </div>
+
+  <div class="counter-stage">
+    <div class="counter-wrap">
+      <svg class="progress-ring" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4a90c9"/>
+            <stop offset="100%" stop-color="#d4a84b"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="50" cy="50" r="48"/>
+        <circle class="ring-fill" id="ringFill" cx="50" cy="50" r="48"
+                stroke-dasharray="301.59" stroke-dashoffset="301.59"/>
+      </svg>
+      <div class="counter" id="counter">
+        <div class="count-num" id="count">0</div>
+        <div class="count-total" id="targetDisplay">/ 33</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dhikr-controls">
+    <button class="ctrl-btn" id="prevBtn">◀</button>
+    <button class="ctrl-btn reset" id="resetBtn">Reset</button>
+    <button class="ctrl-btn" id="nextBtn">▶</button>
+  </div>
+</div>
 
 <div class="overlay" id="overlay"></div>
 
 <div class="sheet" id="hadithSheet">
-  <h3 id="hadithTitle">Hadith Evidence</h3>
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="hadithTitle">📖 Hadith Evidence</div>
   <div id="hadithContent"></div>
   <button class="close-sheet" id="closeHadith">Close</button>
 </div>
 
 <div class="sheet" id="settingsSheet">
-  <h3>Target</h3>
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">⚙️ Settings</div>
+  <div style="font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:12px;">Target</div>
   <div class="chips" id="targetChips"></div>
-  <h3>Virtues of Dhikr</h3>
+  <div style="font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:12px;">Virtues of Dhikr</div>
   <div class="virtues-list" id="virtuesList"></div>
   <div class="row">
-    <span>Vibration</span>
+    <span style="font-weight:600;">Vibration</span>
     <div class="switch on" id="vibSwitch"></div>
   </div>
   <button class="close-sheet" id="closeSettings">Done</button>
 </div>
 
-<div class="sheet" id="randomHadithSheet" style="max-height: 78vh;">
-  <h3>📖 Hadith of the Moment</h3>
+<div class="sheet" id="randomHadithSheet" style="max-height: 80vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">📚 Hadith of the Moment</div>
   <div id="randomHadithContent"></div>
-  <button class="close-sheet" id="newRandomHadith" style="background: #2a6b9a;">📚 Another Hadith</button>
+  <button class="close-sheet primary" id="newRandomHadith">📚 Another Hadith</button>
   <button class="close-sheet" id="closeRandomHadith">Close</button>
 </div>
 
 <script>
 (function() {
+  'use strict';
+
+  /* ============================================================
+     DATA
+     ============================================================ */
   const PRESETS = [
     {
       arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', meaning: 'Glory be to Allah',
@@ -180,91 +683,7 @@
   ];
 
   const TARGETS = [33, 99, 100, 500, 1000];
-
-  const K = {
-    count: 'dc_count', target: 'dc_target', total: 'dc_total',
-    idx: 'dc_idx', vib: 'dc_vib'
-  };
-
-  let state = {
-    count: parseInt(localStorage.getItem(K.count) || '0', 10),
-    target: parseInt(localStorage.getItem(K.target) || '33', 10),
-    total: parseInt(localStorage.getItem(K.total) || '0', 10),
-    idx: parseInt(localStorage.getItem(K.idx) || '0', 10),
-    vib: localStorage.getItem(K.vib) !== 'false'
-  };
-
-  const $ = id => document.getElementById(id);
-
-  function save() {
-    localStorage.setItem(K.count, state.count);
-    localStorage.setItem(K.target, state.target);
-    localStorage.setItem(K.total, state.total);
-    localStorage.setItem(K.idx, state.idx);
-    localStorage.setItem(K.vib, state.vib);
-  }
-
-  function vibe(pattern) {
-    if (!state.vib) return;
-    if (navigator.vibrate) navigator.vibrate(pattern);
-  }
-
-  function render() {
-    const p = PRESETS[state.idx];
-    $('arabic').textContent = p.arabic;
-    $('translit').textContent = p.translit;
-    $('meaning').textContent = p.meaning;
-    $('count').textContent = state.count;
-    $('targetDisplay').textContent = '/ ' + state.target;
-    $('total').textContent = state.total;
-    const c = $('counter');
-    if (state.count >= state.target && state.count > 0) c.classList.add('done');
-    else c.classList.remove('done');
-    const tc = $('targetChips');
-    tc.innerHTML = '';
-    TARGETS.forEach(t => {
-      const el = document.createElement('div');
-      el.className = 'chip' + (state.target === t ? ' active' : '');
-      el.textContent = t;
-      el.onclick = () => { state.target = t; state.count = 0; save(); render(); vibe(20); };
-      tc.appendChild(el);
-    });
-    $('vibSwitch').className = 'switch' + (state.vib ? ' on' : '');
-  }
-
-  function renderHadith() {
-    const p = PRESETS[state.idx];
-    $('hadithTitle').textContent = 'Hadith — ' + p.translit;
-    const container = $('hadithContent');
-    container.innerHTML = '';
-    if (!p.hadith || p.hadith.length === 0) {
-      container.innerHTML = '<p style="color:#6c8099;font-size:14px;">No specific hadith linked to this dhikr yet.</p>';
-      return;
-    }
-    p.hadith.forEach(h => {
-      const card = document.createElement('div');
-      card.className = 'hadith-card';
-      card.innerHTML = `<div class="h-arabic">${h.arabic}</div><div class="h-text">${h.text}</div><div class="h-ref"><span>${h.ref}</span><a href="${h.url}" target="_blank">sunnah.com ↗</a></div><div class="h-grade">${h.grade}</div>`;
-      container.appendChild(card);
-    });
-  }
-
-  function renderVirtues() {
-    const container = $('virtuesList');
-    container.innerHTML = '';
-    VIRTUES.forEach(v => {
-      const card = document.createElement('div');
-      card.className = 'hadith-card';
-      card.innerHTML = `<div class="h-text">${v.text}</div><div class="h-ref"><span>${v.ref}</span><a href="${v.url}" target="_blank">sunnah.com ↗</a></div>`;
-      container.appendChild(card);
-    });
-  }
-
-  /* ============================================================
-     HADITH API — fawazahmed0/hadith-api (reliable, no 404s)
-     ============================================================ */
   const API_BASE = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
-
   const EDITIONS = [
     { slug: 'eng-bukhari',  name: 'Sahih al-Bukhari' },
     { slug: 'eng-muslim',   name: 'Sahih Muslim' },
@@ -277,56 +696,237 @@
     { slug: 'eng-qudsi',    name: '40 Hadith Qudsi' }
   ];
 
-  async function fetchJSON(url) {
-    const res = await fetch(url, { mode: 'cors' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.json();
+  const K = {
+    count: 'dc_count', target: 'dc_target', total: 'dc_total',
+    idx: 'dc_idx', vib: 'dc_vib'
+  };
+
+  /* ============================================================
+     STATE + HELPERS
+     ============================================================ */
+  const $ = id => document.getElementById(id);
+
+  let state = {
+    count: parseInt(localStorage.getItem(K.count) || '0', 10) || 0,
+    target: parseInt(localStorage.getItem(K.target) || '33', 10) || 33,
+    total: parseInt(localStorage.getItem(K.total) || '0', 10) || 0,
+    idx: parseInt(localStorage.getItem(K.idx) || '0', 10) || 0,
+    vib: localStorage.getItem(K.vib) !== 'false'
+  };
+  if (state.idx < 0 || state.idx >= PRESETS.length) state.idx = 0;
+
+  function save() {
+    try {
+      localStorage.setItem(K.count, String(state.count));
+      localStorage.setItem(K.target, String(state.target));
+      localStorage.setItem(K.total, String(state.total));
+      localStorage.setItem(K.idx, String(state.idx));
+      localStorage.setItem(K.vib, String(state.vib));
+    } catch (e) {}
   }
 
-  async function showRandomHadith() {
-    const container = $('randomHadithContent');
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:#6c8099;"><span class="loading-spinner"></span>Loading hadith...</div>';
+  function vibe(pattern) {
+    if (!state.vib) return;
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+
+  function on(el, evt, fn) {
+    if (el) el.addEventListener(evt, fn);
+  }
+
+  /* ============================================================
+     SCREEN ROUTER
+     ============================================================ */
+  function showScreen(name) {
+    const home = $('homeScreen');
+    const dhikr = $('dhikrScreen');
+    if (!home || !dhikr) return;
+    if (name === 'home') {
+      dhikr.classList.add('hidden');
+      home.classList.remove('hidden');
+      renderResume();
+    } else if (name === 'dhikr') {
+      home.classList.add('hidden');
+      dhikr.classList.remove('hidden');
+      renderDhikr();
+    }
+  }
+
+  /* ============================================================
+     RENDER: RESUME CARD
+     ============================================================ */
+  function renderResume() {
+    try {
+      const p = PRESETS[state.idx];
+      if (!p) return;
+      if ($('resumeAr')) $('resumeAr').textContent = p.arabic;
+      if ($('resumeSub')) $('resumeSub').textContent = p.translit + ' — ' + p.meaning;
+      const pct = state.target > 0 ? Math.min(100, (state.count / state.target) * 100) : 0;
+      if ($('resumeBar')) $('resumeBar').style.width = pct + '%';
+      if ($('resumeCount')) $('resumeCount').textContent = state.count + ' / ' + state.target;
+      if ($('resumeTotal')) $('resumeTotal').textContent = 'Total: ' + state.total;
+    } catch (e) { console.error('renderResume', e); }
+  }
+
+  /* ============================================================
+     RENDER: DATES
+     ============================================================ */
+  function renderDates() {
+    try {
+      const now = new Date();
+      const gregFmt = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+      });
+      if ($('gregDate')) $('gregDate').textContent = gregFmt.format(now);
+    } catch (e) { console.error('gregDate', e); }
 
     try {
-      const ed = EDITIONS[Math.floor(Math.random() * EDITIONS.length)];
+      const now = new Date();
+      const hijriFmt = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+      const parts = hijriFmt.formatToParts(now);
+      let day = '', month = '', year = '';
+      for (const p of parts) {
+        if (p.type === 'day') day = p.value;
+        else if (p.type === 'month') month = p.value;
+        else if (p.type === 'year') year = (p.value || '').replace(/\s*AH/, '');
+      }
+      if ($('hijriDate')) $('hijriDate').textContent = day + ' ' + month + ' ' + year + ' AH';
+    } catch (e) {
+      if ($('hijriDate')) $('hijriDate').textContent = '';
+    }
+  }
 
-      // fawazahmed0 API returns an object with a "hadiths" array
-      const data = await fetchJSON(API_BASE + ed.slug + '.json');
-      const hadiths = data.hadiths || data;
-      if (!Array.isArray(hadiths) || hadiths.length === 0) {
-        throw new Error('No hadiths in ' + ed.name);
+  /* ============================================================
+     RENDER: DHIKR SCREEN
+     ============================================================ */
+  const RING_CIRC = 2 * Math.PI * 48;
+
+  function renderDhikr() {
+    try {
+      const p = PRESETS[state.idx];
+      if (!p) return;
+      if ($('arabic')) $('arabic').textContent = p.arabic;
+      if ($('translit')) $('translit').textContent = p.translit;
+      if ($('meaning')) $('meaning').textContent = p.meaning;
+      if ($('count')) $('count').textContent = state.count;
+      if ($('targetDisplay')) $('targetDisplay').textContent = '/ ' + state.target;
+
+      const c = $('counter');
+      if (c) {
+        if (state.count >= state.target && state.count > 0) c.classList.add('done');
+        else c.classList.remove('done');
       }
 
-      const h = hadiths[Math.floor(Math.random() * hadiths.length)];
+      const ring = $('ringFill');
+      if (ring) {
+        const progress = state.target > 0 ? Math.min(1, state.count / state.target) : 0;
+        ring.setAttribute('stroke-dasharray', String(RING_CIRC));
+        ring.setAttribute('stroke-dashoffset', String(RING_CIRC * (1 - progress)));
+      }
 
-      // The API structure: { hadithnumber, text, arabic, ... }
+      const tc = $('targetChips');
+      if (tc) {
+        tc.innerHTML = '';
+        TARGETS.forEach(t => {
+          const el = document.createElement('div');
+          el.className = 'chip' + (state.target === t ? ' active' : '');
+          el.textContent = t;
+          el.onclick = () => {
+            state.target = t; state.count = 0;
+            save(); renderDhikr(); vibe(20);
+          };
+          tc.appendChild(el);
+        });
+      }
+
+      if ($('vibSwitch')) $('vibSwitch').className = 'switch' + (state.vib ? ' on' : '');
+    } catch (e) { console.error('renderDhikr', e); }
+  }
+
+  function renderHadith() {
+    try {
+      const p = PRESETS[state.idx];
+      if (!p) return;
+      if ($('hadithTitle')) $('hadithTitle').textContent = '📖 ' + p.translit;
+      const container = $('hadithContent');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!p.hadith || p.hadith.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-3);font-size:14px;">No specific hadith linked to this dhikr yet.</p>';
+        return;
+      }
+      p.hadith.forEach(h => {
+        const card = document.createElement('div');
+        card.className = 'hadith-card';
+        card.innerHTML =
+          '<div class="h-arabic">' + h.arabic + '</div>' +
+          '<div class="h-text">' + h.text + '</div>' +
+          '<div class="h-ref"><span>' + h.ref + '</span>' +
+          '<a href="' + h.url + '" target="_blank">sunnah.com ↗</a></div>' +
+          '<div class="h-grade">' + h.grade + '</div>';
+        container.appendChild(card);
+      });
+    } catch (e) { console.error('renderHadith', e); }
+  }
+
+  function renderVirtues() {
+    try {
+      const container = $('virtuesList');
+      if (!container) return;
+      container.innerHTML = '';
+      VIRTUES.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'hadith-card';
+        card.innerHTML =
+          '<div class="h-text">' + v.text + '</div>' +
+          '<div class="h-ref"><span>' + v.ref + '</span>' +
+          '<a href="' + v.url + '" target="_blank">sunnah.com ↗</a></div>';
+        container.appendChild(card);
+      });
+    } catch (e) { console.error('renderVirtues', e); }
+  }
+
+  /* ============================================================
+     RANDOM HADITH
+     ============================================================ */
+  async function showRandomHadith() {
+    const container = $('randomHadithContent');
+    if (!container) return;
+    container.innerHTML = '<div class="loading-box"><div class="spinner"></div><br>Loading hadith…</div>';
+    try {
+      const ed = EDITIONS[Math.floor(Math.random() * EDITIONS.length)];
+      const res = await fetch(API_BASE + ed.slug + '.json', { mode: 'cors' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const hadiths = data.hadiths || data;
+      if (!Array.isArray(hadiths) || hadiths.length === 0) throw new Error('Empty');
+      const h = hadiths[Math.floor(Math.random() * hadiths.length)];
       const num = h.hadithnumber || h.hadithNumber || h.id || '?';
       const english = h.text || (h.english && h.english.text) || '';
       const arabic = h.arabic || '';
       const sunnahUrl = 'https://sunnah.com/' + ed.slug.replace('eng-', '') + ':' + num;
-
-      container.innerHTML = `
-        <div class="hadith-card" style="border-color: #2a6b9a;">
-          <div class="hadith-topic-badge">${ed.name}</div>
-          ${arabic ? '<div class="h-arabic">' + arabic + '</div>' : ''}
-          <div class="h-text">${english}</div>
-          <div class="h-ref">
-            <span>${ed.name} #${num}</span>
-            <a href="${sunnahUrl}" target="_blank">sunnah.com ↗</a>
-          </div>
-        </div>
-      `;
+      container.innerHTML =
+        '<div class="hadith-card" style="border-color:var(--blue);">' +
+          '<div class="hadith-topic-badge">' + ed.name + '</div>' +
+          (arabic ? '<div class="h-arabic">' + arabic + '</div>' : '') +
+          '<div class="h-text">' + english + '</div>' +
+          '<div class="h-ref"><span>' + ed.name + ' #' + num + '</span>' +
+          '<a href="' + sunnahUrl + '" target="_blank">sunnah.com ↗</a></div>' +
+        '</div>';
     } catch (err) {
-      console.error('Hadith fetch error:', err);
-      container.innerHTML = `
-        <div class="hadith-card" style="border-color:#5a2a2a;">
-          <div class="h-text" style="color:#ff9b9b;">Couldn't load: ${err.message}</div>
-          <div class="h-text" style="color:#8fa3b8;font-size:12px;margin-top:10px;">Tap "Another Hadith" to try again.</div>
-        </div>
-      `;
+      container.innerHTML =
+        '<div class="hadith-card" style="border-color:var(--red);">' +
+          '<div class="h-text" style="color:#ff9b9b;">Couldn\'t load: ' + err.message + '</div>' +
+          '<div class="h-text" style="font-size:12px;margin-top:10px;">Tap "Another Hadith" to try again.</div>' +
+        '</div>';
     }
   }
 
+  /* ============================================================
+     ACTIONS
+     ============================================================ */
   function tap() {
     if (state.count >= state.target) {
       state.count = 1; state.total += 1; vibe([0, 30]);
@@ -335,46 +935,89 @@
       if (state.count === state.target) vibe([0, 80, 60, 80, 60, 120]);
       else vibe([0, 30]);
     }
-    save(); render();
+    save(); renderDhikr();
   }
 
-  function closeAllSheets() {
-    $('hadithSheet').classList.remove('open');
-    $('settingsSheet').classList.remove('open');
-    $('randomHadithSheet').classList.remove('open');
-    $('overlay').classList.remove('open');
-  }
-
-  $('counter').addEventListener('click', tap);
-  $('undoBtn').onclick = () => {
+  function undo() {
     if (state.total === 0) return;
     if (state.count > 1) state.count -= 1;
     else if (state.total - 1 >= state.target) state.count = state.target;
     else state.count = 0;
-    state.total -= 1; save(); render(); vibe(15);
-  };
-  $('resetBtn').onclick = () => {
-    if (confirm('Reset count and total?')) { state.count = 0; state.total = 0; save(); render(); vibe(15); }
-  };
-  $('prevBtn').onclick = () => { state.idx = (state.idx - 1 + PRESETS.length) % PRESETS.length; save(); render(); vibe(15); };
-  $('nextBtn').onclick = () => { state.idx = (state.idx + 1) % PRESETS.length; save(); render(); vibe(15); };
-  $('hadithBtn').onclick = () => { renderHadith(); closeAllSheets(); $('hadithSheet').classList.add('open'); $('overlay').classList.add('open'); };
-  $('closeHadith').onclick = closeAllSheets;
-  $('settingsBtn').onclick = () => { renderVirtues(); closeAllSheets(); $('settingsSheet').classList.add('open'); $('overlay').classList.add('open'); };
-  $('closeSettings').onclick = closeAllSheets;
-  $('randomHadithBtn').onclick = () => {
+    state.total -= 1;
+    save(); renderDhikr(); vibe(15);
+  }
+
+  function closeAllSheets() {
+    ['hadithSheet', 'settingsSheet', 'randomHadithSheet'].forEach(id => {
+      const el = $(id); if (el) el.classList.remove('open');
+    });
+    const ov = $('overlay'); if (ov) ov.classList.remove('open');
+  }
+
+  function openSheet(id) {
     closeAllSheets();
-    $('randomHadithSheet').classList.add('open');
-    $('overlay').classList.add('open');
-    showRandomHadith();
-    vibe(20);
-  };
-  $('closeRandomHadith').onclick = closeAllSheets;
-  $('newRandomHadith').onclick = () => { showRandomHadith(); vibe(15); };
-  $('overlay').onclick = closeAllSheets;
-  $('vibSwitch').onclick = () => { state.vib = !state.vib; save(); render(); if (state.vib) vibe(30); };
+    const s = $(id); if (s) s.classList.add('open');
+    const ov = $('overlay'); if (ov) ov.classList.add('open');
+  }
+
+  /* ============================================================
+     EVENT LISTENERS — attached FIRST so nothing blocks them
+     ============================================================ */
+  on($('counter'), 'click', tap);
+  on($('counter'), 'contextmenu', e => { e.preventDefault(); undo(); });
+
+  on($('resumeCard'), 'click', () => { vibe(15); showScreen('dhikr'); });
+  on($('backFromDhikr'), 'click', () => { vibe(15); showScreen('home'); });
+
+  document.querySelectorAll('.feature-tile').forEach(tile => {
+    on(tile, 'click', () => {
+      if (tile.classList.contains('coming-soon')) { vibe([0, 20]); return; }
+      vibe(15);
+      const f = tile.dataset.feature;
+      if (f === 'dhikr') showScreen('dhikr');
+      else if (f === 'hadith') { openSheet('randomHadithSheet'); showRandomHadith(); }
+    });
+  });
+
+  on($('settingsBtn'), 'click', () => { renderVirtues(); openSheet('settingsSheet'); });
+  on($('closeSettings'), 'click', closeAllSheets);
+
+  on($('hadithBtn'), 'click', () => { renderHadith(); openSheet('hadithSheet'); });
+  on($('closeHadith'), 'click', closeAllSheets);
+
+  on($('closeRandomHadith'), 'click', closeAllSheets);
+  on($('newRandomHadith'), 'click', () => { showRandomHadith(); vibe(15); });
+
+  on($('overlay'), 'click', closeAllSheets);
+
+  on($('resetBtn'), 'click', () => {
+    if (confirm('Reset count and total?')) {
+      state.count = 0; state.total = 0;
+      save(); renderDhikr(); vibe(15);
+    }
+  });
+  on($('prevBtn'), 'click', () => {
+    state.idx = (state.idx - 1 + PRESETS.length) % PRESETS.length;
+    save(); renderDhikr(); vibe(15);
+  });
+  on($('nextBtn'), 'click', () => {
+    state.idx = (state.idx + 1) % PRESETS.length;
+    save(); renderDhikr(); vibe(15);
+  });
+  on($('vibSwitch'), 'click', () => {
+    state.vib = !state.vib;
+    save(); renderDhikr();
+    if (state.vib) vibe(30);
+  });
+
   document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
-  render();
+
+  /* ============================================================
+     BOOT — each call wrapped so one failure doesn't kill the rest
+     ============================================================ */
+  try { renderDates(); } catch (e) { console.error('boot dates', e); }
+  try { renderResume(); } catch (e) { console.error('boot resume', e); }
+  try { renderDhikr(); } catch (e) { console.error('boot dhikr', e); }
 })();
 </script>
 </body>
