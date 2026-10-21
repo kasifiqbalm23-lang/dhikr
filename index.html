@@ -490,11 +490,20 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .switch.on::after { left: 23px; }
-  .switch.disabled {
-    opacity: 0.3;
-    pointer-events: none;
-    cursor: not-allowed;
+  .switch.disabled { opacity: 0.3; pointer-events: none; cursor: not-allowed; }
+
+  .vib-note {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    padding: 10px 12px;
+    background: rgba(var(--red-rgb), 0.08);
+    border: 1px solid rgba(var(--red-rgb), 0.2);
+    border-radius: 10px;
+    margin-top: 8px;
+    display: none;
   }
+  .vib-note.show { display: block; }
 
   .close-sheet {
     width: 100%; padding: 15px;
@@ -817,10 +826,8 @@
   <div class="section-label">Target</div>
   <div class="chips" id="targetChips"></div>
 
-  <div class="section-label">Virtues of Dhikr</div>
-  <div class="virtues-list" id="virtuesList"></div>
-
-  <div class="row">
+  <div class="section-label">Haptics</div>
+  <div class="row" style="border-top:none; padding-top:4px;">
     <span style="font-weight:600;">Vibration</span>
     <button class="switch on" id="vibSwitch" type="button" aria-label="Toggle vibration"></button>
   </div>
@@ -828,6 +835,11 @@
     <span style="font-weight:600;">Vibrate on every tap</span>
     <button class="switch on" id="tapVibSwitch" type="button" aria-label="Toggle vibration on each tap"></button>
   </div>
+  <div class="vib-note" id="vibNote"></div>
+
+  <div class="section-label" style="margin-top:22px;">Virtues of Dhikr</div>
+  <div class="virtues-list" id="virtuesList"></div>
+
   <button class="close-sheet" id="closeSettings">Done</button>
 </div>
 
@@ -1028,6 +1040,61 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2000);
   }
 
+  /* ============================================================
+     HAPTICS — support detection + safe vibrate
+     ============================================================ */
+  function supportsVibrate() {
+    try { return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'; }
+    catch (e) { return false; }
+  }
+  const IS_IOS = (function () {
+    try {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    } catch (e) { return false; }
+  })();
+
+  /**
+   * Fire a vibration pattern safely.
+   * - Leading `0` in the pattern is stripped (some browsers no-op the whole
+   *   array if it starts with 0, which was the reason no vibration was felt).
+   */
+  function vibe(pattern) {
+    if (!state.vib) return;
+    if (!supportsVibrate()) return;
+    try {
+      let p = pattern;
+      if (Array.isArray(p) && p.length && p[0] === 0) p = p.slice(1);
+      if (Array.isArray(p) && p.length === 0) return;
+      navigator.vibrate(p);
+    } catch (e) { /* ignore */ }
+  }
+
+  /**
+   * Short pulse for each dhikr tap.
+   * Requires master AND the per-tap preference to be on.
+   */
+  function vibeTap() {
+    if (!state.vib || !state.vibTap) return;
+    if (!supportsVibrate()) return;
+    try { navigator.vibrate(40); } catch (e) { /* ignore */ }
+  }
+
+  /**
+   * Decides which haptic to fire for a tap, based on current preset state.
+   * Called from `pointerdown` so the pulse is felt the instant the finger
+   * touches, not 50-100 ms after touchend.
+   */
+  function fireTapHaptic() {
+    const ps = preset();
+    const willComplete = ps.count < state.target && (ps.count + 1 === state.target);
+    if (willComplete) vibe([80, 60, 80, 60, 120]);
+    else vibeTap();
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
   function defaultState() {
     return {
       idx: 0, target: 33,
@@ -1075,17 +1142,9 @@
     try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) {}
   }
 
-  // Master gate — used for all non-per-tap haptics
-  function vibe(pattern) {
-    if (!state.vib) return;
-    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
-  }
-  // Per-tap pulse — needs master AND tap to be on
-  function vibeTap() {
-    if (!state.vib || !state.vibTap) return;
-    try { if (navigator.vibrate) navigator.vibrate([0, 30]); } catch (e) {}
-  }
-
+  /* ============================================================
+     THEME
+     ============================================================ */
   function applyTheme(key, animate) {
     const t = THEMES[key] || THEMES.midnight;
     const root = document.documentElement;
@@ -1128,6 +1187,9 @@
     });
   }
 
+  /* ============================================================
+     SCREEN ROUTER
+     ============================================================ */
   function replayTiles() {
     const g = $('featureGrid');
     if (!g) return;
@@ -1153,6 +1215,9 @@
     }
   }
 
+  /* ============================================================
+     RENDERERS
+     ============================================================ */
   function renderResume() {
     const p = PRESETS[state.idx], ps = preset();
     if (!p) return;
@@ -1244,6 +1309,22 @@
     el.setAttribute('aria-disabled', String(!state.vib));
   }
 
+  function renderVibNote() {
+    const el = $('vibNote');
+    if (!el) return;
+    if (supportsVibrate()) {
+      el.classList.remove('show');
+      el.textContent = '';
+      return;
+    }
+    el.classList.add('show');
+    if (IS_IOS) {
+      el.textContent = 'iPhone and iPad don\'t expose the Vibration API in any browser, so haptics can\'t fire here. Everything else works normally.';
+    } else {
+      el.textContent = 'This browser doesn\'t support the Vibration API, so haptics can\'t fire here.';
+    }
+  }
+
   function renderVirtues() {
     const box = $('virtuesList');
     if (!box) return;
@@ -1283,6 +1364,9 @@
     });
   }
 
+  /* ============================================================
+     HADITH CACHE
+     ============================================================ */
   const IDB_NAME = 'nur-hadith-v1';
   const IDB_STORE = 'editions';
   const memCache = new Map();
@@ -1310,7 +1394,7 @@
         r.onsuccess = () => res(r.result);
         r.onerror = () => rej(r.error);
       });
-    } catch { return null; }
+    } catch (e) { return null; }
   }
   async function idbSet(k, v) {
     try {
@@ -1320,7 +1404,7 @@
         tx.objectStore(IDB_STORE).put(v, k);
         tx.oncomplete = res; tx.onerror = () => rej(tx.error);
       });
-    } catch {}
+    } catch (e) {}
   }
   function compact(list) {
     return list.map(h => ({
@@ -1381,6 +1465,9 @@
     }
   }
 
+  /* ============================================================
+     FLASHY ANIMATIONS
+     ============================================================ */
   function spawnRipple(counter, clientX, clientY) {
     if (PREFERS_REDUCED) return;
     const rect = counter.getBoundingClientRect();
@@ -1402,7 +1489,7 @@
         [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }],
         { duration: 260, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
       );
-    } catch {}
+    } catch (e) {}
   }
 
   function pulseCounter() {
@@ -1414,7 +1501,7 @@
         [{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }],
         { duration: 420, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
       );
-    } catch {}
+    } catch (e) {}
   }
 
   function burstConfetti() {
@@ -1456,6 +1543,9 @@
     }
   }
 
+  /* ============================================================
+     ACTIONS
+     ============================================================ */
   function tap(e) {
     const ps = preset();
     const wasComplete = ps.count >= state.target;
@@ -1467,15 +1557,6 @@
     } else {
       ps.count += 1;
       ps.total += 1;
-    }
-
-    // Haptics:
-    // - Completion always fires (master gate only)
-    // - Normal tap pulse requires BOTH master and vibTap
-    if (willComplete) {
-      vibe([0, 80, 60, 80, 60, 120]);
-    } else {
-      vibeTap();
     }
 
     if (e && e.clientX != null && e.type === 'click') {
@@ -1513,7 +1594,7 @@
       const ps = preset();
       ps.count = 0; ps.total = 0;
       save(); renderCounter();
-      vibe([0, 40, 40, 40]);
+      vibe([40, 40, 40]);
       toast('Reset');
       return;
     }
@@ -1541,6 +1622,9 @@
     toast(PRESETS[state.idx].translit);
   }
 
+  /* ============================================================
+     SHEETS
+     ============================================================ */
   function closeAllSheets() {
     ['hadithSheet', 'settingsSheet', 'randomHadithSheet'].forEach(id => {
       const el = $(id); if (el) el.classList.remove('open');
@@ -1553,11 +1637,31 @@
     const ov = $('overlay'); if (ov) ov.classList.add('open');
   }
 
-  on($('counter'), 'click', tap);
-  on($('counter'), 'contextmenu', e => { e.preventDefault(); undo(); });
-  on($('counter'), 'keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); }
+  /* ============================================================
+     EVENTS
+     ============================================================ */
+
+  // Haptic on POINTERDOWN — fires the instant the finger touches,
+  // before touchend / click. Guards against right-click and multi-touch.
+  on($('counter'), 'pointerdown', (e) => {
+    if (e.isPrimary === false) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    fireTapHaptic();
   });
+
+  // Counting still happens on click (fires after touchend).
+  on($('counter'), 'click', tap);
+
+  // Keyboard path (Enter / Space) can't fire pointerdown, so vibe + count here.
+  on($('counter'), 'keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fireTapHaptic();
+      tap();
+    }
+  });
+
+  on($('counter'), 'contextmenu', e => { e.preventDefault(); undo(); });
 
   on($('resumeCard'), 'click', () => { vibe(15); showScreen('dhikr'); });
   on($('resumeCard'), 'keydown', e => {
@@ -1577,6 +1681,7 @@
 
   on($('settingsBtn'), 'click', () => {
     renderThemeSwatches();
+    renderVibNote();
     renderVirtues();
     openSheet('settingsSheet');
   });
@@ -1597,9 +1702,10 @@
     save();
     renderVib();
     renderTapVib();
+    renderVibNote();
     if (state.vib) {
-      vibe(30);
-      toast('Vibration on');
+      vibe(40);
+      toast(supportsVibrate() ? 'Vibration on' : 'Vibration on (no hardware)');
     } else {
       toast('Vibration off');
     }
@@ -1611,7 +1717,7 @@
     save();
     renderTapVib();
     if (state.vibTap) {
-      vibe(30);
+      vibe(40);
       toast('Tap vibration on');
     } else {
       toast('Tap vibration off');
@@ -1625,12 +1731,16 @@
   on(window, 'pagehide', save);
   on(document, 'visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
 
+  /* ============================================================
+     BOOT
+     ============================================================ */
   try { applyTheme(state.theme, false); } catch (e) { console.error('boot theme', e); }
   try { renderDates(); } catch (e) { console.error('boot dates', e); }
   try { renderResume(); } catch (e) { console.error('boot resume', e); }
   try { initChips(); } catch (e) { console.error('boot chips', e); }
   try { renderVib(); } catch (e) { console.error('boot vib', e); }
   try { renderTapVib(); } catch (e) { console.error('boot tap vib', e); }
+  try { renderVibNote(); } catch (e) { console.error('boot vib note', e); }
   try { renderHeader(); renderCounter(); } catch (e) { console.error('boot dhikr', e); }
   try { replayTiles(); } catch (e) { console.error('boot tiles', e); }
 })();
