@@ -14,6 +14,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>Nur — Islamic Companion</title>
 <style>
+  /* ============================================================
+     THEME VARS  (all overridden at runtime by JS)
+     ============================================================ */
   :root {
     --bg: #0a1420;
     --surface: #131e2e;
@@ -24,14 +27,23 @@
     --text: #e8eef5;
     --text-2: #8fa3b8;
     --text-3: #5a6a7d;
+
     --gold: #d4a84b;
     --gold-soft: #e8c878;
+    --gold-rgb: 212, 168, 75;
+
     --blue: #4a90c9;
     --blue-bright: #5fa8e0;
+    --blue-rgb: 74, 144, 201;
+
     --green: #2a8b5c;
     --green-bright: #3ea877;
+    --green-rgb: 42, 139, 92;
+
     --red: #d95a5a;
+    --red-rgb: 217, 90, 90;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     height: 100%; background: var(--bg); color: var(--text);
@@ -40,41 +52,56 @@
     user-select: none; -webkit-user-select: none;
     touch-action: manipulation;
     -webkit-text-size-adjust: 100%;
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
   body {
     background-image:
-      radial-gradient(circle at 20% 0%, rgba(74, 144, 201, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 100%, rgba(212, 168, 75, 0.06) 0%, transparent 50%);
+      radial-gradient(circle at 20% 0%, rgba(var(--blue-rgb), 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(var(--gold-rgb), 0.06) 0%, transparent 50%);
   }
   .arabic-font { font-family: 'Amiri', serif; }
-  .selectable { user-select: text; -webkit-user-select: text; }
 
+  /* Smooth cross-fade on theme swap */
+  body.theme-transitioning *,
+  body.theme-transitioning *::before,
+  body.theme-transitioning *::after {
+    transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease !important;
+  }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
   .screen {
     position: fixed; top: 0; right: 0; bottom: 0; left: 0;
     display: flex; flex-direction: column;
     padding: calc(20px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
     overflow-y: auto; overflow-x: hidden;
-    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+    transition: transform 0.36s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
     -webkit-overflow-scrolling: touch;
   }
-  .screen.hidden {
-    transform: translateX(100%);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .screen.home.hidden {
-    transform: translateX(-25%);
-    opacity: 0;
-  }
+  .screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+  .screen.home.hidden { transform: translateX(-25%); opacity: 0; }
 
+  /* ============================================================
+     HOME
+     ============================================================ */
   .home-header { padding: 8px 0 20px; }
+
   .greeting-ar {
     font-family: 'Amiri', serif;
     font-size: 30px;
-    color: var(--gold-soft);
     line-height: 1.3;
     margin-bottom: 6px;
+    background: linear-gradient(100deg, var(--gold-soft) 30%, var(--text) 50%, var(--gold-soft) 70%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: textShine 6s linear infinite;
   }
+  @keyframes textShine { to { background-position: -200% center; } }
+
   .greeting-en { font-size: 15px; color: var(--text-2); font-weight: 500; }
   .date-row {
     display: flex; align-items: center; gap: 10px;
@@ -94,29 +121,46 @@
     position: relative;
     overflow: hidden;
   }
+  .resume-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(var(--gold-rgb), 0.14), transparent);
+    animation: cardShine 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes cardShine {
+    0%, 100% { left: -100%; }
+    50%      { left: 100%; }
+  }
   .resume-card:active { transform: scale(0.98); border-color: var(--gold); }
+
   .resume-label {
     font-size: 11px; color: var(--gold);
     text-transform: uppercase; letter-spacing: 1.2px;
     font-weight: 700; margin-bottom: 10px;
+    position: relative;
   }
   .resume-ar {
     font-family: 'Amiri', serif;
     font-size: 26px; color: var(--text);
     direction: rtl; margin-bottom: 4px;
+    position: relative;
   }
-  .resume-sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
-  .mini-bar { height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
+  .resume-sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; position: relative; }
+  .mini-bar { height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; position: relative; }
   .mini-bar-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--blue), var(--gold));
     border-radius: 3px;
-    transition: width 0.4s ease;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .resume-meta {
     display: flex; justify-content: space-between;
     font-size: 12px; color: var(--text-3);
     margin-top: 8px; font-weight: 600;
+    position: relative;
   }
 
   .section-title {
@@ -131,6 +175,22 @@
     gap: 12px;
     padding-bottom: 20px;
   }
+  .feature-grid.reveal .feature-tile {
+    animation: tileReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+  .feature-grid.reveal .feature-tile:nth-child(1) { animation-delay: 0.00s; }
+  .feature-grid.reveal .feature-tile:nth-child(2) { animation-delay: 0.05s; }
+  .feature-grid.reveal .feature-tile:nth-child(3) { animation-delay: 0.10s; }
+  .feature-grid.reveal .feature-tile:nth-child(4) { animation-delay: 0.15s; }
+  .feature-grid.reveal .feature-tile:nth-child(5) { animation-delay: 0.20s; }
+  .feature-grid.reveal .feature-tile:nth-child(6) { animation-delay: 0.25s; }
+  .feature-grid.reveal .feature-tile:nth-child(7) { animation-delay: 0.30s; }
+  .feature-grid.reveal .feature-tile:nth-child(8) { animation-delay: 0.35s; }
+  @keyframes tileReveal {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
   .feature-tile {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -166,10 +226,11 @@
     letter-spacing: 0.5px;
   }
 
+  /* ============================================================
+     DHIKR SCREEN
+     ============================================================ */
   .feature-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 4px 0 14px;
     flex-shrink: 0;
   }
@@ -186,47 +247,36 @@
     transition: background 0.15s;
   }
   .icon-btn:active { background: var(--surface-2); }
-  .icon-btn.ghost {
-    background: transparent;
-    border-color: transparent;
-    font-size: 22px;
-    width: 36px;
-  }
+  .icon-btn.ghost { background: transparent; border-color: transparent; font-size: 22px; width: 36px; }
 
-  .dhikr-display {
-    text-align: center;
-    padding: 8px 0 16px;
-    flex-shrink: 0;
-  }
+  .dhikr-display { text-align: center; padding: 8px 0 16px; flex-shrink: 0; }
   .dhikr-ar {
     font-family: 'Amiri', serif;
     font-size: 38px; font-weight: 700;
     line-height: 1.4; color: var(--text);
     direction: rtl; margin-bottom: 8px;
-    text-shadow: 0 0 30px rgba(212, 168, 75, 0.15);
+    text-shadow: 0 0 30px rgba(var(--gold-rgb), 0.18);
   }
   .dhikr-translit { font-size: 16px; color: var(--gold-soft); font-weight: 600; margin-bottom: 3px; }
   .dhikr-meaning { font-size: 12px; color: var(--text-3); }
   .hadith-chip {
     margin-top: 12px;
-    background: rgba(74, 144, 201, 0.1);
+    background: rgba(var(--blue-rgb), 0.1);
     color: var(--blue-bright);
-    border: 1px solid rgba(74, 144, 201, 0.25);
+    border: 1px solid rgba(var(--blue-rgb), 0.25);
     padding: 8px 16px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
     cursor: pointer;
     font: inherit;
     font-size: 12px;
+    font-weight: 600;
   }
-  .hadith-chip:active { background: rgba(74, 144, 201, 0.2); }
+  .hadith-chip:active { background: rgba(var(--blue-rgb), 0.2); }
 
+  /* ---- COUNTER ---- */
   .counter-stage {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     min-height: 0;
     position: relative;
     padding: 8px 0;
@@ -235,52 +285,73 @@
     position: relative;
     width: min(72vw, 72vh, 340px);
     height: min(72vw, 72vh, 340px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
+    isolation: isolate;
   }
-  .progress-ring {
+  .counter-wrap::before {
+    content: '';
     position: absolute;
-    top: 0; left: 0;
+    inset: 12%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--blue-rgb), 0.18), transparent 70%);
+    filter: blur(18px);
+    z-index: -1;
+    animation: glowBreathe 5s ease-in-out infinite;
+  }
+  @keyframes glowBreathe {
+    0%, 100% { transform: scale(1);    opacity: 0.45; }
+    50%      { transform: scale(1.18); opacity: 0.85; }
+  }
+
+  .progress-ring {
+    position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     transform: rotate(-90deg);
     pointer-events: none;
   }
-  .ring-bg {
-    fill: none;
-    stroke: var(--surface-3);
-    stroke-width: 4;
-  }
+  .ring-bg { fill: none; stroke: var(--surface-3); stroke-width: 4; }
   .ring-fill {
     fill: none;
     stroke: url(#ringGradient);
     stroke-width: 4;
     stroke-linecap: round;
-    transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: stroke-dashoffset 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 0 4px rgba(var(--gold-rgb), 0.5));
+    animation: ringShimmer 3s ease-in-out infinite;
   }
+  @keyframes ringShimmer {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(var(--gold-rgb), 0.4)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(var(--gold-rgb), 0.8)); }
+  }
+
   .counter {
     width: calc(100% - 24px);
     height: calc(100% - 24px);
     border-radius: 50%;
     background: radial-gradient(circle at 30% 25%, var(--surface-2), var(--surface) 75%);
     border: 1px solid var(--border-bright);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     cursor: pointer;
-    transition: transform 0.08s ease, background 0.3s ease, border-color 0.3s ease;
-    box-shadow: 0 0 60px rgba(74, 144, 201, 0.1) inset, 0 8px 30px rgba(0, 0, 0, 0.4);
+    transition: transform 0.09s ease, background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    box-shadow: 0 0 60px rgba(var(--blue-rgb), 0.1) inset, 0 8px 30px rgba(0,0,0,0.4);
     position: relative;
     color: var(--text);
     font: inherit;
     padding: 0;
+    overflow: hidden;
   }
   .counter:active { transform: scale(0.96); }
   .counter.done {
-    background: radial-gradient(circle at 30% 25%, #1a4a35, #0f2e22 75%);
+    background: radial-gradient(circle at 30% 25%,
+      rgba(var(--green-rgb), 0.35), var(--surface) 78%);
     border-color: var(--green);
-    box-shadow: 0 0 70px rgba(62, 168, 119, 0.25) inset, 0 8px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 90px rgba(var(--green-rgb), 0.35) inset, 0 8px 30px rgba(0,0,0,0.4);
+    animation: counterPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes counterPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.015); }
   }
   .count-num {
     font-size: clamp(48px, 22vw, 88px);
@@ -289,6 +360,7 @@
     color: var(--text);
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
+    transform-origin: 50% 50%;
   }
   .count-total {
     font-size: clamp(14px, 4vw, 20px);
@@ -298,6 +370,22 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Ripple */
+  .ripple {
+    position: absolute;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--gold-rgb), 0.7), transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: rippleExpand 0.65s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+  }
+  @keyframes rippleExpand {
+    from { transform: translate(-50%,-50%) scale(0.4); opacity: 0.85; }
+    to   { transform: translate(-50%,-50%) scale(14); opacity: 0; }
+  }
+
+  /* Controls */
   .dhikr-controls {
     display: flex; gap: 10px;
     justify-content: center; align-items: center;
@@ -311,30 +399,33 @@
     border: 1px solid var(--border);
     padding: 11px 18px;
     border-radius: 12px;
-    font-size: 14px;
     cursor: pointer;
-    font-weight: 600;
     font: inherit;
     font-size: 14px;
     font-weight: 600;
     min-width: 48px;
+    transition: transform 0.12s ease, background 0.2s ease;
   }
-  .ctrl-btn:active { background: var(--surface-2); }
-  .ctrl-btn.reset { color: #ff9b9b; background: rgba(217, 90, 90, 0.1); border-color: rgba(217, 90, 90, 0.2); }
-  .ctrl-btn.confirm { color: #fff; background: var(--red); border-color: var(--red); }
+  .ctrl-btn:active { background: var(--surface-2); transform: scale(0.94); }
+  .ctrl-btn.reset { color: var(--red); background: rgba(var(--red-rgb), 0.1); border-color: rgba(var(--red-rgb), 0.22); }
+  .ctrl-btn.reset.confirm { color: #fff; background: var(--red); border-color: var(--red); }
 
+  /* ============================================================
+     SHEETS
+     ============================================================ */
   .sheet {
     position: fixed; left: 0; right: 0; bottom: 0;
     background: var(--surface);
     border-radius: 24px 24px 0 0;
     padding: 22px 20px calc(32px + env(safe-area-inset-bottom));
     transform: translateY(100%);
-    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     z-index: 10;
     max-height: 85vh;
     overflow-y: auto;
     border-top: 1px solid var(--border-bright);
     -webkit-overflow-scrolling: touch;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.4);
   }
   .sheet.open { transform: translateY(0); }
   .sheet-handle {
@@ -343,26 +434,64 @@
     border-radius: 2px;
     margin: -6px auto 16px;
   }
-  .sheet-title {
-    font-size: 15px; color: var(--text);
-    margin-bottom: 16px; font-weight: 700;
+  .sheet-title { font-size: 15px; color: var(--text); margin-bottom: 16px; font-weight: 700; }
+
+  .section-label {
+    font-size: 12px; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-weight: 700; margin-bottom: 12px;
   }
+
+  /* Theme swatches */
+  .theme-swatches {
+    display: flex; gap: 12px;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    margin-bottom: 22px;
+    scrollbar-width: none;
+  }
+  .theme-swatches::-webkit-scrollbar { display: none; }
+  .theme-swatch {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    background: var(--sw-bg, #000);
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .theme-swatch::before {
+    content: '';
+    position: absolute; inset: 5px;
+    border-radius: 50%;
+    background: conic-gradient(from 200deg, var(--sw-a, #fff), var(--sw-b, #000), var(--sw-a, #fff));
+  }
+  .theme-swatch:active { transform: scale(0.9); }
+  .theme-swatch.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--gold), 0 0 20px rgba(var(--gold-rgb), 0.5);
+  }
+
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
   .chip {
     background: var(--surface-2); color: var(--text-2);
     border: 1px solid var(--border);
     padding: 10px 16px; border-radius: 20px;
-    font-size: 13px; cursor: pointer;
-    font-weight: 600;
+    cursor: pointer;
     font: inherit;
     font-size: 13px;
     font-weight: 600;
+    transition: transform 0.15s ease, background 0.2s ease;
   }
+  .chip:active { transform: scale(0.94); }
   .chip.active {
     background: var(--blue); border-color: var(--blue-bright);
     color: #fff;
-    box-shadow: 0 4px 14px rgba(74, 144, 201, 0.3);
+    box-shadow: 0 4px 14px rgba(var(--blue-rgb), 0.35);
   }
+
   .row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 0;
@@ -372,7 +501,7 @@
     width: 48px; height: 28px; border-radius: 14px;
     background: var(--surface-3);
     position: relative; cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.25s;
     flex-shrink: 0;
     border: none;
     padding: 0;
@@ -383,35 +512,36 @@
     width: 22px; height: 22px;
     border-radius: 50%; background: #fff;
     top: 3px; left: 3px;
-    transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .switch.on::after { left: 23px; }
+
   .close-sheet {
     width: 100%; padding: 15px;
     background: var(--surface-2); color: var(--text);
     border: 1px solid var(--border);
     border-radius: 14px;
-    font-size: 15px; font-weight: 700;
-    margin-top: 14px; cursor: pointer;
+    cursor: pointer;
     font: inherit;
     font-size: 15px;
     font-weight: 700;
+    margin-top: 14px;
   }
-  .close-sheet.primary {
-    background: var(--blue); border-color: var(--blue-bright); color: #fff;
-  }
+  .close-sheet.primary { background: var(--blue); border-color: var(--blue-bright); color: #fff; }
+
   .overlay {
-    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-    background: rgba(0,0,0,0.6);
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     opacity: 0; pointer-events: none;
-    transition: opacity 0.25s;
+    transition: opacity 0.28s;
     z-index: 9;
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
 
+  /* Hadith cards */
   .hadith-card {
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -429,8 +559,7 @@
     font-size: 14px; line-height: 1.65;
     color: var(--text-2);
     margin-bottom: 12px;
-    user-select: text;
-    -webkit-user-select: text;
+    user-select: text; -webkit-user-select: text;
   }
   .hadith-card .h-ref {
     font-size: 12px; color: var(--text-3);
@@ -443,20 +572,19 @@
   .hadith-card .h-ref a { color: var(--blue-bright); text-decoration: none; }
   .hadith-card .h-grade {
     font-size: 11px; color: var(--green-bright);
-    background: rgba(62, 168, 119, 0.1);
+    background: rgba(var(--green-rgb), 0.12);
     padding: 3px 9px; border-radius: 10px;
     display: inline-block; margin-top: 10px;
     font-weight: 600;
   }
   .hadith-topic-badge {
     display: inline-block;
-    background: rgba(74, 144, 201, 0.12);
+    background: rgba(var(--blue-rgb), 0.14);
     color: var(--blue-bright);
     font-size: 11px; padding: 4px 11px;
     border-radius: 10px; margin-bottom: 12px;
     font-weight: 700;
   }
-  .virtues-list { margin-bottom: 16px; }
 
   .loading-box {
     text-align: center;
@@ -475,6 +603,9 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ============================================================
+     TOAST / CONFETTI / BG ORBS
+     ============================================================ */
   #toast {
     position: fixed;
     bottom: calc(30px + env(safe-area-inset-bottom));
@@ -488,20 +619,75 @@
     font-weight: 600;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.25s, transform 0.25s;
     z-index: 100;
     border: 1px solid var(--border-bright);
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     max-width: 80vw;
     text-align: center;
   }
-  #toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #confettiLayer {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    will-change: transform, opacity;
+    animation: confettiFall var(--dur, 1.2s) cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.2); opacity: 0; }
+  }
+
+  .bg-orbs {
+    position: fixed; inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .orb {
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.13;
+    animation: orbFloat 22s ease-in-out infinite;
+    transition: background 0.6s ease;
+  }
+  .orb-a { background: var(--blue); top: -120px; left: -120px; }
+  .orb-b { background: var(--gold); bottom: -120px; right: -120px; animation-delay: -11s; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(60px, 50px) scale(1.12); }
+    66%      { transform: translate(-50px, 90px) scale(0.92); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .orb, .greeting-ar, .resume-card::after, .ring-fill, .counter-wrap::before, .counter.done {
+      animation: none !important;
+    }
   }
 </style>
 </head>
 <body>
+
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+</div>
+<div id="confettiLayer" aria-hidden="true"></div>
 
 <!-- HOME -->
 <div class="screen home" id="homeScreen">
@@ -528,7 +714,7 @@
 
   <div class="section-title">Features</div>
 
-  <div class="feature-grid">
+  <div class="feature-grid" id="featureGrid">
     <button class="feature-tile" data-feature="dhikr">
       <div class="tile-icon">📿</div>
       <div>
@@ -536,7 +722,6 @@
         <div class="tile-sub">Tasbih with hadith evidence</div>
       </div>
     </button>
-
     <button class="feature-tile" data-feature="hadith">
       <div class="tile-icon">📚</div>
       <div>
@@ -544,7 +729,6 @@
         <div class="tile-sub">From the six major collections</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="prayer">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">🕌</div>
@@ -553,7 +737,6 @@
         <div class="tile-sub">Five daily salah times</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="quran">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">📖</div>
@@ -562,7 +745,6 @@
         <div class="tile-sub">Selected surahs &amp; ayat</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="adhkar">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">🌅</div>
@@ -571,7 +753,6 @@
         <div class="tile-sub">Morning &amp; evening</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="duas">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">🤲</div>
@@ -580,7 +761,6 @@
         <div class="tile-sub">By occasion &amp; time</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="qibla">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">🧭</div>
@@ -589,7 +769,6 @@
         <div class="tile-sub">Direction to the Kaaba</div>
       </div>
     </button>
-
     <button class="feature-tile coming-soon" data-feature="names">
       <div class="tile-badge">Soon</div>
       <div class="tile-icon">✨</div>
@@ -621,8 +800,8 @@
       <svg class="progress-ring" viewBox="0 0 100 100" aria-hidden="true">
         <defs>
           <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4a90c9"/>
-            <stop offset="100%" stop-color="#d4a84b"/>
+            <stop offset="0%"   style="stop-color: var(--blue)"/>
+            <stop offset="100%" style="stop-color: var(--gold)"/>
           </linearGradient>
         </defs>
         <circle class="ring-bg" cx="50" cy="50" r="46"/>
@@ -656,10 +835,16 @@
 <div class="sheet" id="settingsSheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <div class="sheet-handle"></div>
   <div class="sheet-title" id="settingsTitle">⚙️ Settings</div>
-  <div style="font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:12px;">Target</div>
+
+  <div class="section-label">Theme</div>
+  <div class="theme-swatches" id="themeSwatches"></div>
+
+  <div class="section-label">Target</div>
   <div class="chips" id="targetChips"></div>
-  <div style="font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:12px;">Virtues of Dhikr</div>
+
+  <div class="section-label">Virtues of Dhikr</div>
   <div class="virtues-list" id="virtuesList"></div>
+
   <div class="row">
     <span style="font-weight:600;">Vibration</span>
     <button class="switch on" id="vibSwitch" type="button" aria-label="Toggle vibration"></button>
@@ -680,58 +865,153 @@
   'use strict';
 
   /* ============================================================
+     THEMES
+     ============================================================ */
+  const THEMES = {
+    midnight: {
+      name: 'Midnight',
+      preview: { bg: '#0d1a28', a: '#4a90c9', b: '#d4a84b' },
+      vars: {
+        'bg': '#0a1420', 'surface': '#131e2e', 'surface-2': '#1a2738', 'surface-3': '#22334a',
+        'border': '#24344a', 'border-bright': '#324a68',
+        'text': '#e8eef5', 'text-2': '#8fa3b8', 'text-3': '#5a6a7d',
+        'gold': '#d4a84b', 'gold-soft': '#e8c878', 'gold-rgb': '212, 168, 75',
+        'blue': '#4a90c9', 'blue-bright': '#5fa8e0', 'blue-rgb': '74, 144, 201',
+        'green': '#2a8b5c', 'green-bright': '#3ea877', 'green-rgb': '42, 139, 92',
+        'red': '#d95a5a', 'red-rgb': '217, 90, 90'
+      }
+    },
+    emerald: {
+      name: 'Emerald',
+      preview: { bg: '#08251a', a: '#3ea877', b: '#d4c24b' },
+      vars: {
+        'bg': '#071a10', 'surface': '#0d2a1a', 'surface-2': '#123822', 'surface-3': '#1a4a2e',
+        'border': '#1e5034', 'border-bright': '#2e6e48',
+        'text': '#e0f5e8', 'text-2': '#8fc4a3', 'text-3': '#5a8068',
+        'gold': '#d4c24b', 'gold-soft': '#e6d878', 'gold-rgb': '212, 194, 75',
+        'blue': '#3ea877', 'blue-bright': '#5cc08c', 'blue-rgb': '62, 168, 119',
+        'green': '#3ea877', 'green-bright': '#5cc08c', 'green-rgb': '62, 168, 119',
+        'red': '#e07070', 'red-rgb': '224, 112, 112'
+      }
+    },
+    royal: {
+      name: 'Royal',
+      preview: { bg: '#1a0d2a', a: '#a855f7', b: '#e0b845' },
+      vars: {
+        'bg': '#0e0618', 'surface': '#1a0e2e', 'surface-2': '#251438', 'surface-3': '#321d4a',
+        'border': '#3d2455', 'border-bright': '#5a3578',
+        'text': '#f0e5f5', 'text-2': '#b8a3d4', 'text-3': '#7a6a8f',
+        'gold': '#e0b845', 'gold-soft': '#f0d478', 'gold-rgb': '224, 184, 69',
+        'blue': '#a855f7', 'blue-bright': '#c084fc', 'blue-rgb': '168, 85, 247',
+        'green': '#34d399', 'green-bright': '#6ee7b7', 'green-rgb': '52, 211, 153',
+        'red': '#f87171', 'red-rgb': '248, 113, 113'
+      }
+    },
+    sunset: {
+      name: 'Sunset',
+      preview: { bg: '#2a1208', a: '#f97316', b: '#fbbf24' },
+      vars: {
+        'bg': '#1a0a06', 'surface': '#2a1208', 'surface-2': '#3a1a0a', 'surface-3': '#4a240e',
+        'border': '#5a2e14', 'border-bright': '#7a4020',
+        'text': '#fce8d8', 'text-2': '#d4a890', 'text-3': '#8f6a55',
+        'gold': '#fbbf24', 'gold-soft': '#fcd34d', 'gold-rgb': '251, 191, 36',
+        'blue': '#f97316', 'blue-bright': '#fb923c', 'blue-rgb': '249, 115, 22',
+        'green': '#10b981', 'green-bright': '#34d399', 'green-rgb': '16, 185, 129',
+        'red': '#ef4444', 'red-rgb': '239, 68, 68'
+      }
+    },
+    ocean: {
+      name: 'Ocean',
+      preview: { bg: '#0a2030', a: '#22d3ee', b: '#06b6d4' },
+      vars: {
+        'bg': '#041418', 'surface': '#0a2030', 'surface-2': '#0e2c3e', 'surface-3': '#14384f',
+        'border': '#1a4260', 'border-bright': '#2a5a80',
+        'text': '#d8f0fc', 'text-2': '#85b0c8', 'text-3': '#557888',
+        'gold': '#22d3ee', 'gold-soft': '#67e8f9', 'gold-rgb': '34, 211, 238',
+        'blue': '#06b6d4', 'blue-bright': '#22d3ee', 'blue-rgb': '6, 182, 212',
+        'green': '#10b981', 'green-bright': '#34d399', 'green-rgb': '16, 185, 129',
+        'red': '#f43f5e', 'red-rgb': '244, 63, 94'
+      }
+    },
+    rose: {
+      name: 'Rose',
+      preview: { bg: '#2a0e1a', a: '#ec4899', b: '#fbbf24' },
+      vars: {
+        'bg': '#1a0810', 'surface': '#2a0e1a', 'surface-2': '#3a1424', 'surface-3': '#4a1c30',
+        'border': '#5a2440', 'border-bright': '#7a3058',
+        'text': '#fce5ef', 'text-2': '#d4a0b8', 'text-3': '#8f6878',
+        'gold': '#fbbf24', 'gold-soft': '#fcd34d', 'gold-rgb': '251, 191, 36',
+        'blue': '#ec4899', 'blue-bright': '#f472b6', 'blue-rgb': '236, 72, 153',
+        'green': '#10b981', 'green-bright': '#34d399', 'green-rgb': '16, 185, 129',
+        'red': '#ef4444', 'red-rgb': '239, 68, 68'
+      }
+    },
+    amber: {
+      name: 'Amber',
+      preview: { bg: '#241a0e', a: '#f59e0b', b: '#fbbf24' },
+      vars: {
+        'bg': '#16100a', 'surface': '#241a0e', 'surface-2': '#322414', 'surface-3': '#42301c',
+        'border': '#523c24', 'border-bright': '#725230',
+        'text': '#fcefd8', 'text-2': '#d4b88f', 'text-3': '#8f7855',
+        'gold': '#fbbf24', 'gold-soft': '#fcd34d', 'gold-rgb': '251, 191, 36',
+        'blue': '#f59e0b', 'blue-bright': '#fbbf24', 'blue-rgb': '245, 158, 11',
+        'green': '#84cc16', 'green-bright': '#a3e635', 'green-rgb': '132, 204, 22',
+        'red': '#ef4444', 'red-rgb': '239, 68, 68'
+      }
+    },
+    daylight: {
+      name: 'Daylight',
+      preview: { bg: '#f8f4ec', a: '#2563eb', b: '#b8860b' },
+      vars: {
+        'bg': '#f0ebe0', 'surface': '#ffffff', 'surface-2': '#f8f4ec', 'surface-3': '#ede5d5',
+        'border': '#d8cfbd', 'border-bright': '#b8ad97',
+        'text': '#1a2430', 'text-2': '#4a5560', 'text-3': '#7a858f',
+        'gold': '#b8860b', 'gold-soft': '#d4a020', 'gold-rgb': '184, 134, 11',
+        'blue': '#2563eb', 'blue-bright': '#3b82f6', 'blue-rgb': '37, 99, 235',
+        'green': '#059669', 'green-bright': '#10b981', 'green-rgb': '5, 150, 105',
+        'red': '#dc2626', 'red-rgb': '220, 38, 38'
+      }
+    }
+  };
+  const THEME_KEYS = Object.keys(THEMES);
+
+  /* ============================================================
      DATA
      ============================================================ */
   const PRESETS = [
-    {
-      arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', meaning: 'Glory be to Allah',
+    { arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', meaning: 'Glory be to Allah',
       hadith: [
         { arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ', text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."', ref: 'Sahih al-Bukhari 6682', url: 'https://sunnah.com/bukhari:6682', grade: 'Sahih' },
         { arabic: 'مَنْ قَالَ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ', text: 'Whoever says "Subhan Allahi wa bihamdihi" one hundred times a day, his sins will be erased, even if they were as much as the foam of the sea.', ref: 'Sahih al-Bukhari 6405', url: 'https://sunnah.com/bukhari:6405', grade: 'Sahih' }
-      ]
-    },
-    {
-      arabic: 'الْحَمْدُ لِلَّهِ', translit: 'Alhamdulillah', meaning: 'All praise is due to Allah',
+      ] },
+    { arabic: 'الْحَمْدُ لِلَّهِ', translit: 'Alhamdulillah', meaning: 'All praise is due to Allah',
       hadith: [
         { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah\' and the best supplication is: \'All praise is due to Allah.\'"', ref: 'Jami` at-Tirmidhi 3383', url: 'https://sunnah.com/tirmidhi:3383', grade: 'Hasan' }
-      ]
-    },
-    {
-      arabic: 'اللَّهُ أَكْبَرُ', translit: 'Allahu Akbar', meaning: 'Allah is the Greatest',
+      ] },
+    { arabic: 'اللَّهُ أَكْبَرُ', translit: 'Allahu Akbar', meaning: 'Allah is the Greatest',
       hadith: [
         { arabic: 'مَنْ سَبَّحَ اللَّهَ فِي دُبُرِ كُلِّ صَلَاةٍ ثَلَاثًا وَثَلَاثِينَ وَحَمِدَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ وَكَبَّرَ اللَّهَ ثَلَاثًا وَثَلَاثِينَ فَتِلْكَ تِسْعَةٌ وَتِسْعُونَ', text: 'If anyone extols Allah after every prayer thirty-three times, and praises Allah thirty-three times, and declares His Greatness thirty-three times, ninety-nine times in all, and says to complete a hundred: "There is no god but Allah, having no partner with Him, to Him belongs sovereignty and to Him is praise due, and He is Potent over everything," his sins will be forgiven even if these are as abundant as the foam of the sea.', ref: 'Sahih Muslim 597a', url: 'https://sunnah.com/muslim:597a', grade: 'Sahih' }
-      ]
-    },
-    {
-      arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ', translit: 'La ilaha illa Allah', meaning: 'There is no deity but Allah',
+      ] },
+    { arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ', translit: 'La ilaha illa Allah', meaning: 'There is no deity but Allah',
       hadith: [
         { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'The Messenger of Allah (ﷺ) said: "The best remembrance is: \'there is none worthy of worship except Allah\' and the best supplication is: \'All praise is due to Allah.\'"', ref: 'Jami` at-Tirmidhi 3383', url: 'https://sunnah.com/tirmidhi:3383', grade: 'Hasan' }
-      ]
-    },
-    {
-      arabic: 'أَسْتَغْفِرُ اللَّهَ', translit: 'Astaghfirullah', meaning: 'I seek forgiveness from Allah',
+      ] },
+    { arabic: 'أَسْتَغْفِرُ اللَّهَ', translit: 'Astaghfirullah', meaning: 'I seek forgiveness from Allah',
       hadith: [
         { arabic: 'إِنَّهُ لَيُغَانُ عَلَى قَلْبِي وَإِنِّي لَأَسْتَغْفِرُ اللَّهَ فِي الْيَوْمِ مِائَةَ مَرَّةٍ', text: 'The Prophet (ﷺ) said: "Sometimes a veil covers my heart, and I seek forgiveness from Allah a hundred times a day."', ref: 'Sahih Muslim 2702', url: 'https://sunnah.com/muslim:2702', grade: 'Sahih' }
-      ]
-    },
-    {
-      arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', translit: 'La hawla wa la quwwata illa billah', meaning: 'No power nor strength except with Allah',
+      ] },
+    { arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', translit: 'La hawla wa la quwwata illa billah', meaning: 'No power nor strength except with Allah',
       hadith: [
         { arabic: 'أَلَا أَدُلُّكَ عَلَى كَنْزٍ مِنْ كُنُوزِ الْجَنَّةِ؟ لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', text: 'The Prophet (ﷺ) said to Abu Musa: "Shall I not tell you of a treasure from the treasures of Paradise? It is: La hawla wa la quwwata illa billah."', ref: 'Sahih al-Bukhari 6384', url: 'https://sunnah.com/bukhari:6384', grade: 'Sahih' }
-      ]
-    },
-    {
-      arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', translit: 'SubhanAllahi wa bihamdih', meaning: 'Glory and praise be to Allah',
+      ] },
+    { arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', translit: 'SubhanAllahi wa bihamdih', meaning: 'Glory and praise be to Allah',
       hadith: [
         { arabic: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ', text: 'The Prophet (ﷺ) said: "(There are) two words which are dear to the Beneficent (Allah) and very light (easy) for the tongue (to say), but very heavy in weight in the balance. They are: Subhan-Allahi wa bihamdihi, Subhan-Allahil-Azim."', ref: 'Sahih al-Bukhari 6682', url: 'https://sunnah.com/bukhari:6682', grade: 'Sahih' }
-      ]
-    },
-    {
-      arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', translit: "Allahumma salli 'ala Muhammad", meaning: 'O Allah, send blessings upon Muhammad',
+      ] },
+    { arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', translit: "Allahumma salli 'ala Muhammad", meaning: 'O Allah, send blessings upon Muhammad',
       hadith: [
         { arabic: 'مَنْ صَلَّى عَلَيَّ صَلَاةً وَاحِدَةً صَلَّى اللَّهُ عَلَيْهِ عَشْرَ صَلَوَاتٍ', text: 'The Prophet (ﷺ) said: "Whoever sends blessings upon me once, Allah will send blessings upon him ten times."', ref: 'Sahih Muslim 408', url: 'https://sunnah.com/muslim:408', grade: 'Sahih' }
-      ]
-    }
+      ] }
   ];
 
   const VIRTUES = [
@@ -755,30 +1035,27 @@
     { slug: 'eng-qudsi',    name: '40 Hadith Qudsi',    sunnah: 'qudsi40'   }
   ];
 
-  const STATE_KEY = 'nur_state_v2';
+  const STATE_KEY = 'nur_state_v3';
+  const LEGACY_KEY = 'nur_state_v2';
+  const PREFERS_REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ============================================================
      HELPERS
      ============================================================ */
   const $ = id => document.getElementById(id);
-  const clone = o => JSON.parse(JSON.stringify(o));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c]));
-
-  function on(el, evt, fn, opts) { if (el) el.addEventListener(evt, fn, opts); }
+  const on = (el, evt, fn, opts) => { if (el) el.addEventListener(evt, fn, opts); };
+  const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
   function toast(msg) {
     let el = $('toast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'toast';
-      document.body.appendChild(el);
-    }
+    if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); }
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), 2200);
+    el._t = setTimeout(() => el.classList.remove('show'), 2000);
   }
 
   /* ============================================================
@@ -786,56 +1063,38 @@
      ============================================================ */
   function defaultState() {
     return {
-      idx: 0,
-      target: 33,
-      vib: true,
+      idx: 0, target: 33, vib: true, theme: 'midnight',
       presets: PRESETS.map(() => ({ count: 0, total: 0 }))
     };
   }
 
   function loadState() {
-    try {
-      const raw = localStorage.getItem(STATE_KEY);
-      if (raw) {
+    for (const key of [STATE_KEY, LEGACY_KEY]) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
         const p = JSON.parse(raw);
         const s = defaultState();
         s.idx = (typeof p.idx === 'number' && p.idx >= 0 && p.idx < PRESETS.length) ? p.idx : 0;
         s.target = (typeof p.target === 'number' && p.target > 0) ? p.target : 33;
         s.vib = (typeof p.vib === 'boolean') ? p.vib : true;
+        s.theme = (p.theme && THEMES[p.theme]) ? p.theme : 'midnight';
         if (Array.isArray(p.presets)) {
           s.presets = PRESETS.map((_, i) => {
             const src = p.presets[i];
             return (src && typeof src.count === 'number' && typeof src.total === 'number')
-              ? { count: Math.max(0, src.count), total: Math.max(0, src.total) }
+              ? { count: clamp(src.count, 0, 1e9), total: clamp(src.total, 0, 1e9) }
               : { count: 0, total: 0 };
           });
         }
         return s;
-      }
-    } catch (e) { /* fall through */ }
-
-    // Migration from v1
-    try {
-      const oldIdx = parseInt(localStorage.getItem('dc_idx') || '0', 10) || 0;
-      const oldTarget = parseInt(localStorage.getItem('dc_target') || '33', 10) || 33;
-      const oldCount = parseInt(localStorage.getItem('dc_count') || '0', 10) || 0;
-      const oldTotal = parseInt(localStorage.getItem('dc_total') || '0', 10) || 0;
-      const oldVib = localStorage.getItem('dc_vib') !== 'false';
-      if (oldCount || oldTotal || oldIdx || oldVib === false) {
-        const s = defaultState();
-        s.idx = Math.max(0, Math.min(PRESETS.length - 1, oldIdx));
-        s.target = TARGETS.indexOf(oldTarget) >= 0 ? oldTarget : 33;
-        s.vib = oldVib;
-        s.presets[s.idx] = { count: Math.max(0, oldCount), total: Math.max(0, oldTotal) };
-        return s;
-      }
-    } catch (e) { /* ignore */ }
-
+      } catch (e) { /* try next key */ }
+    }
     return defaultState();
   }
 
   let state = loadState();
-  function preset() { return state.presets[state.idx]; }
+  const preset = () => state.presets[state.idx];
 
   let saveTimer = null;
   function saveSoon() {
@@ -843,19 +1102,72 @@
     saveTimer = setTimeout(save, 200);
   }
   function save() {
-    clearTimeout(saveTimer);
-    saveTimer = null;
-    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+    clearTimeout(saveTimer); saveTimer = null;
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) {}
   }
 
   function vibe(pattern) {
     if (!state.vib) return;
-    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* ignore */ }
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+
+  /* ============================================================
+     THEME
+     ============================================================ */
+  function applyTheme(key, animate) {
+    const t = THEMES[key] || THEMES.midnight;
+    const root = document.documentElement;
+    if (animate && !PREFERS_REDUCED) {
+      document.body.classList.add('theme-transitioning');
+      setTimeout(() => document.body.classList.remove('theme-transitioning'), 550);
+    }
+    Object.entries(t.vars).forEach(([k, v]) => root.style.setProperty('--' + k, v));
+    document.body.dataset.theme = key;
+    document.querySelector('meta[name="theme-color"]')
+      .setAttribute('content', t.vars.bg);
+    // re-render theme swatches
+    document.querySelectorAll('.theme-swatch').forEach(el => {
+      el.classList.toggle('active', el.dataset.theme === key);
+    });
+  }
+
+  function renderThemeSwatches() {
+    const box = $('themeSwatches');
+    if (!box) return;
+    box.innerHTML = '';
+    THEME_KEYS.forEach(key => {
+      const t = THEMES[key];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'theme-swatch' + (state.theme === key ? ' active' : '');
+      b.dataset.theme = key;
+      b.setAttribute('aria-label', t.name + ' theme');
+      b.style.setProperty('--sw-bg', t.preview.bg);
+      b.style.setProperty('--sw-a', t.preview.a);
+      b.style.setProperty('--sw-b', t.preview.b);
+      b.addEventListener('click', () => {
+        if (state.theme === key) return;
+        state.theme = key;
+        save();
+        applyTheme(key, true);
+        vibe(25);
+        toast(t.name + ' theme');
+      });
+      box.appendChild(b);
+    });
   }
 
   /* ============================================================
      SCREEN ROUTER
      ============================================================ */
+  function replayTiles() {
+    const g = $('featureGrid');
+    if (!g) return;
+    g.classList.remove('reveal');
+    void g.offsetWidth;
+    g.classList.add('reveal');
+  }
+
   function showScreen(name) {
     const home = $('homeScreen');
     const dhikr = $('dhikrScreen');
@@ -864,6 +1176,7 @@
       dhikr.classList.add('hidden');
       home.classList.remove('hidden');
       renderResume();
+      replayTiles();
     } else if (name === 'dhikr') {
       home.classList.add('hidden');
       dhikr.classList.remove('hidden');
@@ -876,44 +1189,37 @@
      RENDERERS
      ============================================================ */
   function renderResume() {
-    try {
-      const p = PRESETS[state.idx];
-      const ps = preset();
-      if (!p) return;
-      $('resumeAr').textContent = p.arabic;
-      $('resumeSub').textContent = p.translit + ' — ' + p.meaning;
-      const pct = state.target > 0 ? Math.min(100, (ps.count / state.target) * 100) : 0;
-      $('resumeBar').style.width = pct + '%';
-      $('resumeCount').textContent = ps.count + ' / ' + state.target;
-      $('resumeTotal').textContent = 'Total: ' + ps.total;
-    } catch (e) { console.error('renderResume', e); }
+    const p = PRESETS[state.idx], ps = preset();
+    if (!p) return;
+    $('resumeAr').textContent = p.arabic;
+    $('resumeSub').textContent = p.translit + ' — ' + p.meaning;
+    const pct = state.target > 0 ? Math.min(100, (ps.count / state.target) * 100) : 0;
+    $('resumeBar').style.width = pct + '%';
+    $('resumeCount').textContent = ps.count + ' / ' + state.target;
+    $('resumeTotal').textContent = 'Total: ' + ps.total;
   }
 
   function renderDates() {
     try {
       const now = new Date();
-      const gregFmt = new Intl.DateTimeFormat('en-GB', {
+      $('gregDate').textContent = new Intl.DateTimeFormat('en-GB', {
         weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
-      });
-      $('gregDate').textContent = gregFmt.format(now);
-    } catch (e) { console.error('gregDate', e); }
+      }).format(now);
+    } catch (e) { $('gregDate').textContent = ''; }
 
     try {
       const now = new Date();
-      const hijriFmt = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+      const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
         day: 'numeric', month: 'long', year: 'numeric'
-      });
-      const parts = hijriFmt.formatToParts(now);
-      let day = '', month = '', year = '';
+      }).formatToParts(now);
+      let d = '', m = '', y = '';
       for (const p of parts) {
-        if (p.type === 'day') day = p.value;
-        else if (p.type === 'month') month = p.value;
-        else if (p.type === 'year') year = (p.value || '').replace(/\s*AH/, '');
+        if (p.type === 'day') d = p.value;
+        else if (p.type === 'month') m = p.value;
+        else if (p.type === 'year') y = (p.value || '').replace(/\s*AH/, '');
       }
-      $('hijriDate').textContent = day + ' ' + month + ' ' + year + ' AH';
-    } catch (e) {
-      $('hijriDate').textContent = '';
-    }
+      $('hijriDate').textContent = d + ' ' + m + ' ' + y + ' AH';
+    } catch (e) { $('hijriDate').textContent = ''; }
   }
 
   const RING_R = 46;
@@ -928,8 +1234,7 @@
   }
 
   function renderCounter() {
-    const ps = preset();
-    const p = PRESETS[state.idx];
+    const ps = preset(), p = PRESETS[state.idx];
     $('count').textContent = ps.count;
     $('targetDisplay').textContent = '/ ' + state.target;
     const c = $('counter');
@@ -957,23 +1262,20 @@
     });
     renderChips();
   }
-
   function renderChips() {
-    const chips = $('targetChips').querySelectorAll('.chip');
-    chips.forEach(el => {
+    document.querySelectorAll('#targetChips .chip').forEach(el => {
       el.classList.toggle('active', Number(el.dataset.target) === state.target);
     });
   }
-
   function renderVib() {
     const el = $('vibSwitch');
     if (el) el.classList.toggle('on', state.vib);
   }
 
   function renderVirtues() {
-    const container = $('virtuesList');
-    if (!container) return;
-    container.innerHTML = '';
+    const box = $('virtuesList');
+    if (!box) return;
+    box.innerHTML = '';
     VIRTUES.forEach(v => {
       const card = document.createElement('div');
       card.className = 'hadith-card';
@@ -981,7 +1283,7 @@
         '<div class="h-text">' + esc(v.text) + '</div>' +
         '<div class="h-ref"><span>' + esc(v.ref) + '</span>' +
         '<a href="' + esc(v.url) + '" target="_blank" rel="noopener noreferrer">sunnah.com ↗</a></div>';
-      container.appendChild(card);
+      box.appendChild(card);
     });
   }
 
@@ -989,11 +1291,11 @@
     const p = PRESETS[state.idx];
     if (!p) return;
     $('hadithTitle').textContent = '📖 ' + p.translit;
-    const container = $('hadithContent');
-    if (!container) return;
-    container.innerHTML = '';
-    if (!p.hadith || p.hadith.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-3);font-size:14px;">No specific hadith linked to this dhikr yet.</p>';
+    const box = $('hadithContent');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!p.hadith || !p.hadith.length) {
+      box.innerHTML = '<p style="color:var(--text-3);font-size:14px;">No specific hadith linked to this dhikr yet.</p>';
       return;
     }
     p.hadith.forEach(h => {
@@ -1005,12 +1307,12 @@
         '<div class="h-ref"><span>' + esc(h.ref) + '</span>' +
         '<a href="' + esc(h.url) + '" target="_blank" rel="noopener noreferrer">sunnah.com ↗</a></div>' +
         '<div class="h-grade">' + esc(h.grade) + '</div>';
-      container.appendChild(card);
+      box.appendChild(card);
     });
   }
 
   /* ============================================================
-     HADITH FETCHING (cached in IndexedDB)
+     HADITH CACHE (IndexedDB)
      ============================================================ */
   const IDB_NAME = 'nur-hadith-v1';
   const IDB_STORE = 'editions';
@@ -1019,126 +1321,185 @@
 
   function openDB() {
     if (dbPromise) return dbPromise;
-    dbPromise = new Promise((resolve, reject) => {
+    dbPromise = new Promise((res, rej) => {
       const req = indexedDB.open(IDB_NAME, 1);
       req.onupgradeneeded = () => {
         if (!req.result.objectStoreNames.contains(IDB_STORE)) {
           req.result.createObjectStore(IDB_STORE);
         }
       };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
     });
     return dbPromise;
   }
-
-  async function idbGet(key) {
+  async function idbGet(k) {
     try {
       const db = await openDB();
-      return await new Promise((resolve, reject) => {
-        const tx = db.transaction(IDB_STORE, 'readonly');
-        const r = tx.objectStore(IDB_STORE).get(key);
-        r.onsuccess = () => resolve(r.result);
-        r.onerror = () => reject(r.error);
+      return await new Promise((res, rej) => {
+        const r = db.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(k);
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
       });
-    } catch (e) { return null; }
+    } catch { return null; }
   }
-
-  async function idbSet(key, val) {
+  async function idbSet(k, v) {
     try {
       const db = await openDB();
-      return await new Promise((resolve, reject) => {
+      await new Promise((res, rej) => {
         const tx = db.transaction(IDB_STORE, 'readwrite');
-        tx.objectStore(IDB_STORE).put(val, key);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
+        tx.objectStore(IDB_STORE).put(v, k);
+        tx.oncomplete = res; tx.onerror = () => rej(tx.error);
       });
-    } catch (e) { /* quota / private mode — ignore */ }
+    } catch {}
   }
-
-  // Reduce stored payload: keep only what we render.
   function compact(list) {
     return list.map(h => ({
       hadithnumber: h.hadithnumber || h.hadithNumber || h.id || '?',
       text: h.text || (h.english && h.english.text) || '',
-      grades: (h.grades || []).map(g => ({
-        grade: g.grade || '', name: g.name || ''
-      }))
+      grades: (h.grades || []).map(g => ({ grade: g.grade || '', name: g.name || '' }))
     }));
   }
-
-  function isAuthentic(record) {
-    if (!record.grades || !record.grades.length) return true;
-    return record.grades.some(g => /sahih|hasan/i.test(g.grade || ''));
-  }
+  const isAuthentic = h => !h.grades || !h.grades.length ||
+    h.grades.some(g => /sahih|hasan/i.test(g.grade || ''));
 
   async function loadEdition(ed) {
     if (memCache.has(ed.slug)) return memCache.get(ed.slug);
-
-    const fromIDB = await idbGet(ed.slug);
-    if (fromIDB && Array.isArray(fromIDB) && fromIDB.length) {
-      memCache.set(ed.slug, fromIDB);
-      return fromIDB;
+    const cached = await idbGet(ed.slug);
+    if (Array.isArray(cached) && cached.length) {
+      memCache.set(ed.slug, cached); return cached;
     }
-
-    const url = API_BASE + ed.slug + '.min.json';
-    const fallbackUrl = API_BASE + ed.slug + '.json';
-    let res = await fetch(url, { mode: 'cors' });
+    let res = await fetch(API_BASE + ed.slug + '.min.json', { mode: 'cors' });
     if (!res.ok) {
-      res = await fetch(fallbackUrl, { mode: 'cors' });
+      res = await fetch(API_BASE + ed.slug + '.json', { mode: 'cors' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
     }
     const data = await res.json();
     const raw = Array.isArray(data) ? data : (data.hadiths || []);
     if (!raw.length) throw new Error('Empty edition');
-
     let list = compact(raw);
-    const filtered = list.filter(isAuthentic);
-    if (filtered.length) list = filtered;
-
+    const good = list.filter(isAuthentic);
+    if (good.length) list = good;
     memCache.set(ed.slug, list);
-    idbSet(ed.slug, list); // fire-and-forget
+    idbSet(ed.slug, list);
     return list;
   }
 
   async function showRandomHadith() {
-    const container = $('randomHadithContent');
-    if (!container) return;
-    container.innerHTML = '<div class="loading-box"><div class="spinner"></div><br>Loading hadith…</div>';
-
+    const box = $('randomHadithContent');
+    if (!box) return;
+    box.innerHTML = '<div class="loading-box"><div class="spinner"></div><br>Loading hadith…</div>';
     const ed = EDITIONS[Math.floor(Math.random() * EDITIONS.length)];
     try {
       const list = await loadEdition(ed);
       const h = list[Math.floor(Math.random() * list.length)];
-      const num = h.hadithnumber;
-      const sunnahUrl = 'https://sunnah.com/' + ed.sunnah + ':' + num;
-
-      const gradeBadge = (h.grades && h.grades.length)
-        ? '<div class="h-grade">' + esc(h.grades.map(g => g.grade).filter(Boolean).join(' · ')) + '</div>'
-        : '';
-
-      container.innerHTML =
+      const url = 'https://sunnah.com/' + ed.sunnah + ':' + h.hadithnumber;
+      const grades = (h.grades || []).map(g => g.grade).filter(Boolean).join(' · ');
+      box.innerHTML =
         '<div class="hadith-card" style="border-color:var(--blue);">' +
           '<div class="hadith-topic-badge">' + esc(ed.name) + '</div>' +
           '<div class="h-text">' + esc(h.text) + '</div>' +
-          '<div class="h-ref"><span>' + esc(ed.name) + ' #' + esc(num) + '</span>' +
-          '<a href="' + esc(sunnahUrl) + '" target="_blank" rel="noopener noreferrer">sunnah.com ↗</a></div>' +
-          gradeBadge +
+          '<div class="h-ref"><span>' + esc(ed.name) + ' #' + esc(h.hadithnumber) + '</span>' +
+          '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">sunnah.com ↗</a></div>' +
+          (grades ? '<div class="h-grade">' + esc(grades) + '</div>' : '') +
         '</div>';
     } catch (err) {
-      container.innerHTML =
+      box.innerHTML =
         '<div class="hadith-card" style="border-color:var(--red);">' +
-          '<div class="h-text" style="color:#ff9b9b;">Couldn\'t load: ' + esc(err.message || 'unknown error') + '</div>' +
+          '<div class="h-text" style="color:var(--red);">Couldn\'t load: ' + esc(err.message || 'unknown') + '</div>' +
           '<div class="h-text" style="font-size:12px;margin-top:10px;">Tap "Another Hadith" to try again.</div>' +
         '</div>';
     }
   }
 
   /* ============================================================
+     FLASHY ANIMATIONS
+     ============================================================ */
+  function spawnRipple(counter, clientX, clientY) {
+    if (PREFERS_REDUCED) return;
+    const rect = counter.getBoundingClientRect();
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    r.style.left = (clientX - rect.left) + 'px';
+    r.style.top = (clientY - rect.top) + 'px';
+    counter.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+    setTimeout(() => r.remove(), 900);
+  }
+
+  function popNumber() {
+    if (PREFERS_REDUCED) return;
+    const n = $('count');
+    if (!n) return;
+    try {
+      n.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }],
+        { duration: 260, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+      );
+    } catch {}
+  }
+
+  function pulseCounter() {
+    if (PREFERS_REDUCED) return;
+    const c = $('counter');
+    if (!c) return;
+    try {
+      c.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }],
+        { duration: 420, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+      );
+    } catch {}
+  }
+
+  function burstConfetti() {
+    if (PREFERS_REDUCED) return;
+    const layer = $('confettiLayer');
+    const counter = $('counter');
+    if (!layer || !counter) return;
+
+    const cs = getComputedStyle(document.documentElement);
+    const read = name => (cs.getPropertyValue(name) || '').trim();
+    const palette = [
+      read('--gold') || '#d4a84b',
+      read('--blue') || '#4a90c9',
+      read('--green') || '#3ea877',
+      read('--gold-soft') || '#e8c878'
+    ];
+
+    const rect = counter.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const N = 40;
+    for (let i = 0; i < N; i++) {
+      const p = document.createElement('span');
+      p.className = 'confetti-piece';
+      const angle = (Math.PI * 2 * i) / N + (Math.random() - 0.5) * 0.4;
+      const dist = 130 + Math.random() * 190;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = palette[i % palette.length];
+      p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--dy', (Math.sin(angle) * dist + 120) + 'px');
+      p.style.setProperty('--rot', ((Math.random() * 900 - 450) | 0) + 'deg');
+      p.style.setProperty('--dur', (0.9 + Math.random() * 0.6).toFixed(2) + 's');
+      if (i % 3 === 0) {
+        p.style.borderRadius = '2px';
+        p.style.width = '6px';
+        p.style.height = '10px';
+      }
+      layer.appendChild(p);
+      setTimeout(() => p.remove(), 1700);
+    }
+  }
+
+  /* ============================================================
      ACTIONS
      ============================================================ */
-  function tap() {
+  function tap(e) {
     const ps = preset();
+    const wasComplete = ps.count >= state.target;
+
     if (ps.count >= state.target) {
       ps.count = 1;
       ps.total += 1;
@@ -1149,6 +1510,17 @@
       if (ps.count === state.target) vibe([0, 80, 60, 80, 60, 120]);
       else vibe([0, 30]);
     }
+
+    if (e && e.clientX != null && e.type === 'click') {
+      spawnRipple($('counter'), e.clientX, e.clientY);
+    }
+    popNumber();
+    if (!wasComplete && ps.count === state.target) {
+      burstConfetti();
+      pulseCounter();
+      toast('MashaAllah — target reached');
+    }
+
     saveSoon();
     renderCounter();
   }
@@ -1172,10 +1544,8 @@
       btn.classList.remove('confirm');
       btn.textContent = 'Reset';
       const ps = preset();
-      ps.count = 0;
-      ps.total = 0;
-      save();
-      renderCounter();
+      ps.count = 0; ps.total = 0;
+      save(); renderCounter();
       vibe([0, 40, 40, 40]);
       toast('Reset');
       return;
@@ -1195,18 +1565,13 @@
     state.target = t;
     const ps = preset();
     if (ps.count > t) ps.count = 0;
-    save();
-    renderChips();
-    renderCounter();
-    vibe(20);
+    save(); renderChips(); renderCounter(); vibe(20);
   }
 
   function switchPreset(dir) {
     state.idx = (state.idx + dir + PRESETS.length) % PRESETS.length;
-    save();
-    renderHeader();
-    renderCounter();
-    vibe(15);
+    save(); renderHeader(); renderCounter(); vibe(15);
+    toast(PRESETS[state.idx].translit);
   }
 
   /* ============================================================
@@ -1218,7 +1583,6 @@
     });
     const ov = $('overlay'); if (ov) ov.classList.remove('open');
   }
-
   function openSheet(id) {
     closeAllSheets();
     const s = $(id); if (s) s.classList.add('open');
@@ -1226,10 +1590,9 @@
   }
 
   /* ============================================================
-     EVENT LISTENERS
+     EVENTS
      ============================================================ */
   on($('counter'), 'click', tap);
-
   on($('counter'), 'contextmenu', e => { e.preventDefault(); undo(); });
   on($('counter'), 'keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); }
@@ -1251,15 +1614,17 @@
     });
   });
 
-  on($('settingsBtn'), 'click', () => { renderVirtues(); openSheet('settingsSheet'); });
+  on($('settingsBtn'), 'click', () => {
+    renderThemeSwatches();
+    renderVirtues();
+    openSheet('settingsSheet');
+  });
   on($('closeSettings'), 'click', closeAllSheets);
 
   on($('hadithBtn'), 'click', () => { renderPresetHadith(); openSheet('hadithSheet'); });
   on($('closeHadith'), 'click', closeAllSheets);
-
   on($('closeRandomHadith'), 'click', closeAllSheets);
   on($('newRandomHadith'), 'click', () => { showRandomHadith(); vibe(15); });
-
   on($('overlay'), 'click', closeAllSheets);
 
   on($('resetBtn'), 'click', resetPress);
@@ -1269,8 +1634,7 @@
 
   on($('vibSwitch'), 'click', () => {
     state.vib = !state.vib;
-    save();
-    renderVib();
+    save(); renderVib();
     if (state.vib) vibe(30);
   });
 
@@ -1278,18 +1642,19 @@
     if (e.key === 'Escape') closeAllSheets();
   });
 
-  // Flush pending saves
   on(window, 'pagehide', save);
   on(document, 'visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
 
   /* ============================================================
      BOOT
      ============================================================ */
+  try { applyTheme(state.theme, false); } catch (e) { console.error('boot theme', e); }
   try { renderDates(); } catch (e) { console.error('boot dates', e); }
   try { renderResume(); } catch (e) { console.error('boot resume', e); }
   try { initChips(); } catch (e) { console.error('boot chips', e); }
   try { renderVib(); } catch (e) { console.error('boot vib', e); }
   try { renderHeader(); renderCounter(); } catch (e) { console.error('boot dhikr', e); }
+  try { replayTiles(); } catch (e) { console.error('boot tiles', e); }
 })();
 </script>
 </body>
