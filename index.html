@@ -14,9 +14,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>Nur — Islamic Companion</title>
 <style>
-  /* ============================================================
-     THEME VARS  (all overridden at runtime by JS)
-     ============================================================ */
   :root {
     --bg: #0a1420;
     --surface: #131e2e;
@@ -27,23 +24,18 @@
     --text: #e8eef5;
     --text-2: #8fa3b8;
     --text-3: #5a6a7d;
-
     --gold: #d4a84b;
     --gold-soft: #e8c878;
     --gold-rgb: 212, 168, 75;
-
     --blue: #4a90c9;
     --blue-bright: #5fa8e0;
     --blue-rgb: 74, 144, 201;
-
     --green: #2a8b5c;
     --green-bright: #3ea877;
     --green-rgb: 42, 139, 92;
-
     --red: #d95a5a;
     --red-rgb: 217, 90, 90;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     height: 100%; background: var(--bg); color: var(--text);
@@ -61,16 +53,12 @@
   }
   .arabic-font { font-family: 'Amiri', serif; }
 
-  /* Smooth cross-fade on theme swap */
   body.theme-transitioning *,
   body.theme-transitioning *::before,
   body.theme-transitioning *::after {
     transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease !important;
   }
 
-  /* ============================================================
-     LAYOUT
-     ============================================================ */
   .screen {
     position: fixed; top: 0; right: 0; bottom: 0; left: 0;
     display: flex; flex-direction: column;
@@ -82,11 +70,7 @@
   .screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
   .screen.home.hidden { transform: translateX(-25%); opacity: 0; }
 
-  /* ============================================================
-     HOME
-     ============================================================ */
   .home-header { padding: 8px 0 20px; }
-
   .greeting-ar {
     font-family: 'Amiri', serif;
     font-size: 30px;
@@ -101,7 +85,6 @@
     animation: textShine 6s linear infinite;
   }
   @keyframes textShine { to { background-position: -200% center; } }
-
   .greeting-en { font-size: 15px; color: var(--text-2); font-weight: 500; }
   .date-row {
     display: flex; align-items: center; gap: 10px;
@@ -226,9 +209,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* ============================================================
-     DHIKR SCREEN
-     ============================================================ */
   .feature-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 4px 0 14px;
@@ -273,7 +253,6 @@
   }
   .hadith-chip:active { background: rgba(var(--blue-rgb), 0.2); }
 
-  /* ---- COUNTER ---- */
   .counter-stage {
     flex: 1;
     display: flex; align-items: center; justify-content: center;
@@ -370,7 +349,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Ripple */
   .ripple {
     position: absolute;
     width: 24px; height: 24px;
@@ -385,7 +363,6 @@
     to   { transform: translate(-50%,-50%) scale(14); opacity: 0; }
   }
 
-  /* Controls */
   .dhikr-controls {
     display: flex; gap: 10px;
     justify-content: center; align-items: center;
@@ -410,9 +387,6 @@
   .ctrl-btn.reset { color: var(--red); background: rgba(var(--red-rgb), 0.1); border-color: rgba(var(--red-rgb), 0.22); }
   .ctrl-btn.reset.confirm { color: #fff; background: var(--red); border-color: var(--red); }
 
-  /* ============================================================
-     SHEETS
-     ============================================================ */
   .sheet {
     position: fixed; left: 0; right: 0; bottom: 0;
     background: var(--surface);
@@ -442,7 +416,6 @@
     font-weight: 700; margin-bottom: 12px;
   }
 
-  /* Theme swatches */
   .theme-swatches {
     display: flex; gap: 12px;
     overflow-x: auto;
@@ -496,12 +469,13 @@
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 0;
     border-top: 1px solid var(--border);
+    gap: 12px;
   }
   .switch {
     width: 48px; height: 28px; border-radius: 14px;
     background: var(--surface-3);
     position: relative; cursor: pointer;
-    transition: background 0.25s;
+    transition: background 0.25s, opacity 0.25s;
     flex-shrink: 0;
     border: none;
     padding: 0;
@@ -516,6 +490,11 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .switch.on::after { left: 23px; }
+  .switch.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
 
   .close-sheet {
     width: 100%; padding: 15px;
@@ -541,7 +520,6 @@
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
 
-  /* Hadith cards */
   .hadith-card {
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -603,9 +581,6 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============================================================
-     TOAST / CONFETTI / BG ORBS
-     ============================================================ */
   #toast {
     position: fixed;
     bottom: calc(30px + env(safe-area-inset-bottom));
@@ -849,6 +824,10 @@
     <span style="font-weight:600;">Vibration</span>
     <button class="switch on" id="vibSwitch" type="button" aria-label="Toggle vibration"></button>
   </div>
+  <div class="row">
+    <span style="font-weight:600;">Vibrate on every tap</span>
+    <button class="switch on" id="tapVibSwitch" type="button" aria-label="Toggle vibration on each tap"></button>
+  </div>
   <button class="close-sheet" id="closeSettings">Done</button>
 </div>
 
@@ -864,9 +843,6 @@
 (function () {
   'use strict';
 
-  /* ============================================================
-     THEMES
-     ============================================================ */
   const THEMES = {
     midnight: {
       name: 'Midnight',
@@ -975,9 +951,6 @@
   };
   const THEME_KEYS = Object.keys(THEMES);
 
-  /* ============================================================
-     DATA
-     ============================================================ */
   const PRESETS = [
     { arabic: 'سُبْحَانَ اللَّهِ', translit: 'SubhanAllah', meaning: 'Glory be to Allah',
       hadith: [
@@ -1039,9 +1012,6 @@
   const LEGACY_KEY = 'nur_state_v2';
   const PREFERS_REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ============================================================
-     HELPERS
-     ============================================================ */
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -1058,12 +1028,10 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2000);
   }
 
-  /* ============================================================
-     STATE
-     ============================================================ */
   function defaultState() {
     return {
-      idx: 0, target: 33, vib: true, theme: 'midnight',
+      idx: 0, target: 33,
+      vib: true, vibTap: true, theme: 'midnight',
       presets: PRESETS.map(() => ({ count: 0, total: 0 }))
     };
   }
@@ -1078,6 +1046,7 @@
         s.idx = (typeof p.idx === 'number' && p.idx >= 0 && p.idx < PRESETS.length) ? p.idx : 0;
         s.target = (typeof p.target === 'number' && p.target > 0) ? p.target : 33;
         s.vib = (typeof p.vib === 'boolean') ? p.vib : true;
+        s.vibTap = (typeof p.vibTap === 'boolean') ? p.vibTap : true;
         s.theme = (p.theme && THEMES[p.theme]) ? p.theme : 'midnight';
         if (Array.isArray(p.presets)) {
           s.presets = PRESETS.map((_, i) => {
@@ -1106,14 +1075,17 @@
     try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) {}
   }
 
+  // Master gate — used for all non-per-tap haptics
   function vibe(pattern) {
     if (!state.vib) return;
     try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
   }
+  // Per-tap pulse — needs master AND tap to be on
+  function vibeTap() {
+    if (!state.vib || !state.vibTap) return;
+    try { if (navigator.vibrate) navigator.vibrate([0, 30]); } catch (e) {}
+  }
 
-  /* ============================================================
-     THEME
-     ============================================================ */
   function applyTheme(key, animate) {
     const t = THEMES[key] || THEMES.midnight;
     const root = document.documentElement;
@@ -1125,7 +1097,6 @@
     document.body.dataset.theme = key;
     document.querySelector('meta[name="theme-color"]')
       .setAttribute('content', t.vars.bg);
-    // re-render theme swatches
     document.querySelectorAll('.theme-swatch').forEach(el => {
       el.classList.toggle('active', el.dataset.theme === key);
     });
@@ -1157,9 +1128,6 @@
     });
   }
 
-  /* ============================================================
-     SCREEN ROUTER
-     ============================================================ */
   function replayTiles() {
     const g = $('featureGrid');
     if (!g) return;
@@ -1185,9 +1153,6 @@
     }
   }
 
-  /* ============================================================
-     RENDERERS
-     ============================================================ */
   function renderResume() {
     const p = PRESETS[state.idx], ps = preset();
     if (!p) return;
@@ -1206,7 +1171,6 @@
         weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
       }).format(now);
     } catch (e) { $('gregDate').textContent = ''; }
-
     try {
       const now = new Date();
       const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
@@ -1240,7 +1204,6 @@
     const c = $('counter');
     c.classList.toggle('done', ps.count >= state.target && ps.count > 0);
     c.setAttribute('aria-label', `${ps.count} of ${state.target} — ${p.translit}`);
-
     const ring = $('ringFill');
     const progress = state.target > 0 ? Math.min(1, ps.count / state.target) : 0;
     ring.setAttribute('stroke-dasharray', String(RING_CIRC));
@@ -1267,9 +1230,18 @@
       el.classList.toggle('active', Number(el.dataset.target) === state.target);
     });
   }
+
   function renderVib() {
     const el = $('vibSwitch');
     if (el) el.classList.toggle('on', state.vib);
+  }
+
+  function renderTapVib() {
+    const el = $('tapVibSwitch');
+    if (!el) return;
+    el.classList.toggle('on', state.vib && state.vibTap);
+    el.classList.toggle('disabled', !state.vib);
+    el.setAttribute('aria-disabled', String(!state.vib));
   }
 
   function renderVirtues() {
@@ -1311,9 +1283,6 @@
     });
   }
 
-  /* ============================================================
-     HADITH CACHE (IndexedDB)
-     ============================================================ */
   const IDB_NAME = 'nur-hadith-v1';
   const IDB_STORE = 'editions';
   const memCache = new Map();
@@ -1412,9 +1381,6 @@
     }
   }
 
-  /* ============================================================
-     FLASHY ANIMATIONS
-     ============================================================ */
   function spawnRipple(counter, clientX, clientY) {
     if (PREFERS_REDUCED) return;
     const rect = counter.getBoundingClientRect();
@@ -1456,7 +1422,6 @@
     const layer = $('confettiLayer');
     const counter = $('counter');
     if (!layer || !counter) return;
-
     const cs = getComputedStyle(document.documentElement);
     const read = name => (cs.getPropertyValue(name) || '').trim();
     const palette = [
@@ -1465,11 +1430,9 @@
       read('--green') || '#3ea877',
       read('--gold-soft') || '#e8c878'
     ];
-
     const rect = counter.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-
     const N = 40;
     for (let i = 0; i < N; i++) {
       const p = document.createElement('span');
@@ -1493,29 +1456,33 @@
     }
   }
 
-  /* ============================================================
-     ACTIONS
-     ============================================================ */
   function tap(e) {
     const ps = preset();
     const wasComplete = ps.count >= state.target;
+    const willComplete = !wasComplete && (ps.count + 1 === state.target);
 
     if (ps.count >= state.target) {
       ps.count = 1;
       ps.total += 1;
-      vibe([0, 30]);
     } else {
       ps.count += 1;
       ps.total += 1;
-      if (ps.count === state.target) vibe([0, 80, 60, 80, 60, 120]);
-      else vibe([0, 30]);
+    }
+
+    // Haptics:
+    // - Completion always fires (master gate only)
+    // - Normal tap pulse requires BOTH master and vibTap
+    if (willComplete) {
+      vibe([0, 80, 60, 80, 60, 120]);
+    } else {
+      vibeTap();
     }
 
     if (e && e.clientX != null && e.type === 'click') {
       spawnRipple($('counter'), e.clientX, e.clientY);
     }
     popNumber();
-    if (!wasComplete && ps.count === state.target) {
+    if (willComplete) {
       burstConfetti();
       pulseCounter();
       toast('MashaAllah — target reached');
@@ -1574,9 +1541,6 @@
     toast(PRESETS[state.idx].translit);
   }
 
-  /* ============================================================
-     SHEETS
-     ============================================================ */
   function closeAllSheets() {
     ['hadithSheet', 'settingsSheet', 'randomHadithSheet'].forEach(id => {
       const el = $(id); if (el) el.classList.remove('open');
@@ -1589,9 +1553,6 @@
     const ov = $('overlay'); if (ov) ov.classList.add('open');
   }
 
-  /* ============================================================
-     EVENTS
-     ============================================================ */
   on($('counter'), 'click', tap);
   on($('counter'), 'contextmenu', e => { e.preventDefault(); undo(); });
   on($('counter'), 'keydown', e => {
@@ -1620,7 +1581,6 @@
     openSheet('settingsSheet');
   });
   on($('closeSettings'), 'click', closeAllSheets);
-
   on($('hadithBtn'), 'click', () => { renderPresetHadith(); openSheet('hadithSheet'); });
   on($('closeHadith'), 'click', closeAllSheets);
   on($('closeRandomHadith'), 'click', closeAllSheets);
@@ -1634,8 +1594,28 @@
 
   on($('vibSwitch'), 'click', () => {
     state.vib = !state.vib;
-    save(); renderVib();
-    if (state.vib) vibe(30);
+    save();
+    renderVib();
+    renderTapVib();
+    if (state.vib) {
+      vibe(30);
+      toast('Vibration on');
+    } else {
+      toast('Vibration off');
+    }
+  });
+
+  on($('tapVibSwitch'), 'click', () => {
+    if (!state.vib) return;
+    state.vibTap = !state.vibTap;
+    save();
+    renderTapVib();
+    if (state.vibTap) {
+      vibe(30);
+      toast('Tap vibration on');
+    } else {
+      toast('Tap vibration off');
+    }
   });
 
   document.addEventListener('keydown', e => {
@@ -1645,14 +1625,12 @@
   on(window, 'pagehide', save);
   on(document, 'visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
 
-  /* ============================================================
-     BOOT
-     ============================================================ */
   try { applyTheme(state.theme, false); } catch (e) { console.error('boot theme', e); }
   try { renderDates(); } catch (e) { console.error('boot dates', e); }
   try { renderResume(); } catch (e) { console.error('boot resume', e); }
   try { initChips(); } catch (e) { console.error('boot chips', e); }
   try { renderVib(); } catch (e) { console.error('boot vib', e); }
+  try { renderTapVib(); } catch (e) { console.error('boot tap vib', e); }
   try { renderHeader(); renderCounter(); } catch (e) { console.error('boot dhikr', e); }
   try { replayTiles(); } catch (e) { console.error('boot tiles', e); }
 })();
